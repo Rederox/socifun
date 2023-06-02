@@ -1,0 +1,36 @@
+query GetCategoryGames(
+  $page: Int
+  $hitsPerPage: Int
+  $visibleFilter: [String!]!
+  $categories: [String!]!
+) {
+  gamesSearched(
+    input: {
+      page: $page
+      hitsPerPage: $hitsPerPage
+      filtersArray: {
+        facets: [
+          { name: visible, values: $visibleFilter }
+          { name: categories, values: $categories }
+        ]
+      }
+    }
+  ) {
+    nbPages
+    hits {
+      objectID
+      title
+      tags
+      md5
+      slugs {
+        name
+        active
+      }
+      assets {
+        name
+        width
+        height
+      }
+    }
+  }
+}

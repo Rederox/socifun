@@ -1,0 +1,9 @@
+query SearchBySlug($slug: String!) {
+  gameSearched(input: { slug: $slug }) {
+    md5
+    title
+    description
+    instruction
+    company
+  }
+}

@@ -1,0 +1,35 @@
+query GetTagGames(
+  $page: Int
+  $visibleFilter: [String!]!
+  $hitsPerPage: Int
+  $tags: [String!]!
+) {
+  gamesSearched(
+    input: {
+      page: $page
+      hitsPerPage: $hitsPerPage
+      filtersArray: {
+        facets: [
+          { name: visible, values: $visibleFilter }
+          { name: tags, values: $tags }
+        ]
+      }
+    }
+  ) {
+    nbPages
+    hits {
+      objectID
+      title
+      md5
+      slugs {
+        name
+        active
+      }
+      assets {
+        name
+        width
+        height
+      }
+    }
+  }
+}

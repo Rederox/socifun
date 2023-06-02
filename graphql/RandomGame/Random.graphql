@@ -1,0 +1,20 @@
+query GetRandomGame($page: Int, $hitsPerPage: Int, $visibleFilter: [String!]!) {
+  gamesSearched(
+    input: {
+      page: $page
+      hitsPerPage: $hitsPerPage
+      filtersArray: { facets: [{ name: visible, values: $visibleFilter }] }
+    }
+  ) {
+    hitsPerPage
+    nbHits
+    nbPages
+    page
+    hits {
+      md5
+      slugs {
+        name
+      }
+    }
+  }
+}
