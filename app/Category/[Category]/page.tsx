@@ -63,7 +63,7 @@ const Category = (props: Props) => {
                 return (
                   <div
                     key={hit.objectID}
-                    className="flex flex-col items-center p-2 m-4 md:p-4 bg-[#1a1a2e] rounded-lg shadow-md hover:shadow-xl transition-all duration-300 ease-in-out cursor-pointer"
+                    className="flex flex-col justify-center items-center p-2 m-4 md:p-4 bg-[#1a1a2e] rounded-lg shadow-md hover:shadow-xl transition-all duration-300 ease-in-out cursor-pointer"
                     onClick={() =>
                       window.open(`/Game/GD/${hit?.slugs?.[0].name}`, "_self")
                     }

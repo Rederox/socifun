@@ -52,10 +52,10 @@ const GameCategory: React.FC<GameCategoryProps> = ({ category, data }) => {
 
   return (
     <div className="bg-[#2e2e52] w-[99%] shadow-lg rounded-md p-2">
-      <div className="flex justify-between">
-        <h2 className="font-bold text-2xl mb-4 text-[#cbf7ed]">{category}!</h2>
+      <div className="flex justify-between items-center m-4 flex-wrap">
+        <h2 className="font-bold text-2xl text-[#cbf7ed]">{category}!</h2>
         <Link href={"Category/" + category}>
-          <span className="font-bold text-sm sm:text-2xl mb-4 text-[#cbf7ed] transition-colors duration-300 ease-in-out border-[#cbf7ed] border-2 rounded-lg px-2 sm:px-4 py-1 hover:bg-[#50fa7b] hover:text-[#2e2e52] cursor-pointer">
+          <span className="font-bold text-sm sm:text-2xl text-[#cbf7ed] transition-colors duration-300 ease-in-out border-[#cbf7ed] border-2 rounded-lg px-2 sm:px-4 py-1 hover:bg-[#50fa7b] hover:text-[#2e2e52] cursor-pointer">
             Voir plus +
           </span>
         </Link>
@@ -64,6 +64,11 @@ const GameCategory: React.FC<GameCategoryProps> = ({ category, data }) => {
         {data && data.gamesSearched ? (
           <>
             <Swiper
+              freeMode={true}
+              mousewheel={{
+                releaseOnEdges: true,
+                sensitivity: 6
+              }}
               navigation={{
                 prevEl: `.swiper-button-prev-${category}`,
                 nextEl: `.swiper-button-next-${category}`,
@@ -87,7 +92,7 @@ const GameCategory: React.FC<GameCategoryProps> = ({ category, data }) => {
 
                 return (
                   <SwiperSlide key={hit.objectID}>
-                    <div className="flex flex-col items-center px-4 py-2">
+                    <div className="flex flex-col justify-center items-center px-4 py-2">
                       <div className="relative w-[6rem] h-[6rem] md:w-[10rem] md:h-[10rem] transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-md">
                         <div
                           className="rounded-lg cursor-pointer"
@@ -108,9 +113,8 @@ const GameCategory: React.FC<GameCategoryProps> = ({ category, data }) => {
                             height={asset?.height ?? 512}
                             loading="lazy"
                             onLoad={() => setImageLoaded(true)}
-                            className={`rounded-lg ${
-                              isImageLoaded ? "opacity-100" : "opacity-0"
-                            } transition-opacity duration-500`}
+                            className={`rounded-lg ${isImageLoaded ? "opacity-100" : "opacity-0"
+                              } transition-opacity duration-500`}
                           />
                         </div>
                       </div>
@@ -129,7 +133,7 @@ const GameCategory: React.FC<GameCategoryProps> = ({ category, data }) => {
           </div>
         )}
       </div>
-    </div>
+    </div >
   );
 };
 

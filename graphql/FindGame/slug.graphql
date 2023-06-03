@@ -5,5 +5,10 @@ query SearchBySlug($slug: String!) {
     description
     instruction
     company
+    type
+    subType
+    company
+    publishedAt
+    categories
   }
 }

@@ -43,7 +43,7 @@ const LoadingPage: React.FC = () => {
         <div className="spoke"></div>
       </motion.div>
       <motion.div initial="hidden" animate="visible" variants={textVariants}>
-        <p className="text-xl mt-4">Loading content, please wait...</p>
+        <p className="text-xl mt-4">Chargement, Veuillez attendre...</p>
       </motion.div>
     </div>
   );
