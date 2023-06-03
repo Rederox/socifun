@@ -1,12 +1,14 @@
 "use client";
-import AuthComp from "@/components/Auth/Auth";
-import { User } from "@supabase/supabase-js";
 import React from "react";
+import RandomAvatar from "@/components/Avatar/RandomAvatar";
+import { Avatar } from "@bigheads/core";
 
-function LoginPage() {
-  const [user, setUser] = React.useState<User | null>(null);
+const Home: React.FC = () => {
+  return (
+    <div>
+      <RandomAvatar />
+    </div>
+  );
+};
 
-  return <div>hello</div>;
-}
-
-export default LoginPage;
+export default Home;

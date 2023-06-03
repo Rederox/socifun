@@ -1,0 +1,16 @@
+export const accessories = ["none", "roundGlasses", "tinyGlasses", "shades"] as const;
+export const bodies = ["chest", "breasts"] as const;
+export const circleColors = ["blue"] as const;
+export const clothes = ["naked", "shirt", "dressShirt", "vneck", "tankTop", "dress"] as const;
+export const clothesColors = ["white", "blue", "black", "green", "red"] as const;
+export const eyebrows = ["raised", "leftLowered", "serious", "angry", "concerned"] as const;
+export const eyes = ["normal", "leftTwitch", "happy", "content", "squint", "simple", "dizzy", "wink", "heart"] as const;
+export const facialHairs = ["none", "none2", "none3", "stubble", "mediumBeard"] as const;
+export const graphics = ["none", "redwood", "gatsby", "vue", "react", "graphQL"] as const;
+export const hairs = ["none", "long", "bun", "short", "pixie", "balding", "buzz", "afro", "bob"] as const;
+export const hairColors = ["blonde", "orange", "black", "white", "brown", "blue", "pink"] as const;
+export const hats = ["none", "none2", "none3", "none4", "none5", "beanie", "turban"] as const;
+export const hatColors = ["white", "blue", "black", "green", "red"] as const;
+export const lipColors = ["red", "purple", "pink", "turqoise", "green"] as const;
+export const mouths = ["grin", "sad", "openSmile", "lips", "open", "serious", "tongue"] as const;
+export const skinTones = ["light", "yellow", "brown", "dark", "red", "black"] as const;

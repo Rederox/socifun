@@ -1,6 +1,5 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
-
 import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -20,6 +19,7 @@ export default function NotFound() {
     hidden: { scale: 0 },
     visible: { scale: 1, transition: { type: "spring", delay: 1.5 } },
   };
+
   return (
     <>
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-1">
