@@ -1,7 +1,7 @@
 "use client";
 import React, { useContext, useState } from "react";
 import Image from "next/image";
-import Profil from "./Profil";
+import Profil from "./userMenu";
 import LikeList from "./LikeList";
 import Random from "./Random";
 import Link from "next/link";

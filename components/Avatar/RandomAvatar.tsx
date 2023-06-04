@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Avatar from "./Avatar";
 import { AvatarProps } from "@bigheads/core";
 import {
@@ -19,6 +19,7 @@ import {
   mouths,
   skinTones,
 } from "./avatarOptions";
+import { AvatarContext } from "@/contexts/AvatarContext";
 
 // Créer une fonction pour choisir un élément aléatoire d'un tableau
 function getRandomElement<T>(array: readonly T[]): T {
@@ -26,8 +27,8 @@ function getRandomElement<T>(array: readonly T[]): T {
   return array[randomIndex];
 }
 
-const AvatarGenerator: React.FC = () => {
-  const [avatarProps, setAvatarProps] = useState<AvatarProps>({});
+const AvatarGenerator = () => {
+  const { avatarProps, setAvatarProps } = useContext(AvatarContext);
 
   const generateRandomAvatar = () => {
     setAvatarProps({
@@ -52,6 +53,12 @@ const AvatarGenerator: React.FC = () => {
       faceMask: Math.random() > 0.5,
     });
   };
+  useEffect(() => {
+    if (Object.keys(avatarProps).length === 0) {
+      generateRandomAvatar();
+    }
+  }, [avatarProps, setAvatarProps]);
+
 
   return (
     <div>
