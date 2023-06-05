@@ -84,7 +84,7 @@ export default function Home() {
   ]);
 
   return (
-    <>
+    <div className="flex flex-col items-center gap-3 w-[99%] h-screen">
       <Search />
       {areCategoriesLoaded ? (
         <>
@@ -95,6 +95,6 @@ export default function Home() {
       ) : (
         <LoadingPage />
       )}
-    </>
+    </div>
   );
 }

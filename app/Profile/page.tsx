@@ -7,6 +7,7 @@ import { UserContext } from "@/contexts/UserProvider";
 import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
 
 import Profile from "@/components/Profile/Profile";
+import LoadingHamster from "@/components/LoadingSpinner/LoadingHamster";
 
 const ProfilePage = () => {
   const context = useContext(UserContext);
@@ -22,7 +23,11 @@ const ProfilePage = () => {
   };
 
   if (loading) {
-    return <LoadingSpinner />;
+    return (
+      <div className="flex w-[99%] h-screen rounded-md flex-col items-center justify-center bg-[#2e2e52] p-4">
+        <LoadingHamster />
+      </div>
+    );
   }
   console.log(avatarProps);
 
@@ -36,16 +41,6 @@ const ProfilePage = () => {
         ) : (
           <>Vous n'êtes pas connecté</>
         )}
-
-        <div className="w-[200px] h-[200px]">
-          <Avatar {...avatarProps} />
-        </div>
-        <button
-          onClick={regenerateAvatar}
-          className="bg-blue-400 rounded-md p-4"
-        >
-          Regenerate Avatar
-        </button>
       </div>
     </div>
   );

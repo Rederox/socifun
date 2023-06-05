@@ -2,7 +2,7 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/router";
-import { useQuery } from "@apollo/client";
+import { from, useQuery } from "@apollo/client";
 import {
   SearchBySlugDocument,
   SearchBySlugQuery,
@@ -12,6 +12,7 @@ import StrapiApolloProvider from "@/graphql/apollo";
 import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
 import LoadingHamster from "@/components/LoadingSpinner/LoadingHamster";
 import Link from "next/link";
+import { BiFullscreen } from "react-icons/bi";
 
 interface Props {
   params: {
@@ -62,8 +63,29 @@ const GamePage = (props: Props) => {
 
   // Function to format date
   const formatDate = (dateString: string | number | Date) => {
-    const options = { year: "numeric", month: "long", day: "numeric" };
+    const options: Intl.DateTimeFormatOptions = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
     return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  const goFullscreen = () => {
+    const iframe = document.getElementById("game-iframe") as HTMLIFrameElement;
+
+    if (iframe.requestFullscreen) {
+      iframe.requestFullscreen();
+    } else if (iframe.requestFullscreen) {
+      // Firefox
+      iframe.requestFullscreen();
+    } else if (iframe.requestFullscreen) {
+      // Chrome, Safari and Opera
+      iframe.requestFullscreen();
+    } else if (iframe.requestFullscreen) {
+      // IE/Edge
+      iframe.requestFullscreen();
+    }
   };
 
   return (
@@ -71,7 +93,14 @@ const GamePage = (props: Props) => {
       <h1 className="text-4xl text-white font-bold mb-4">
         {data?.gameSearched?.title}
       </h1>
-      <div className="h-[70vh] w-full lg:w-[90%] rounded-md overflow-hidden my-4">
+      <div className="h-[70vh] w-full lg:w-[90%] rounded-md overflow-hidden my-4 flex flex-col items-end">
+        <button
+          onClick={goFullscreen}
+          className="font-bold text-[30px] absolute text-[#2e2e52]"
+        >
+          <BiFullscreen />
+        </button>
+
         <iframe
           id="game-iframe"
           className="w-full h-full"
@@ -85,6 +114,12 @@ const GamePage = (props: Props) => {
           data-hj-allow-iframe="true"
           onError={handleIframeError}
         ></iframe>
+        <div className="flex justify-center gap-4">
+          <div>Vue</div>
+          <div>Like</div>
+          <div>Dislike</div>
+          <div>Favoris</div>
+        </div>
       </div>
       <div className="w-full lg:w-[90%] text-white text-lg">
         <div className="my-2">

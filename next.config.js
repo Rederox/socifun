@@ -3,7 +3,8 @@ const nextConfig = {
   images: {
     domains: [
       'img.gamedistribution.com',
-      'lh3.googleusercontent.com'
+      'lh3.googleusercontent.com',
+      'cspgaovwyijhefsrqskl.supabase.co'
     ],
   },
   experimental: {

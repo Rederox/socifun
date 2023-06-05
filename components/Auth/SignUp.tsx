@@ -138,7 +138,7 @@ const SignUp: React.FC<SignUpProps> = ({ setIsRegistering, variants }) => {
         />
       </button>
       <div className="flex row gap-2 items-center">
-        <p className="text-sm font-medium">Vous avez déja inscris?</p>
+        <p className="text-sm font-medium">Vous êtes déjà inscrits ?</p>
         <button className="signButton" onClick={() => setIsRegistering(false)}>
           Se connecter
           <div className="arrow-wrapper">
