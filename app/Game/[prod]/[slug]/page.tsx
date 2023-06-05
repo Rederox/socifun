@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/router";
@@ -10,8 +11,7 @@ import {
 import StrapiApolloProvider from "@/graphql/apollo";
 import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
 import LoadingHamster from "@/components/LoadingSpinner/LoadingHamster";
-import Link from 'next/link';
-
+import Link from "next/link";
 
 interface Props {
   params: {
@@ -39,26 +39,38 @@ const GamePage = (props: Props) => {
     prod === "CG"
       ? `https://games.crazygames.com/en_US/${slug}/index.html`
       : prod === "GD" && data
-        ? `https://html5.gamedistribution.com/${data.gameSearched?.md5}`
-        : "";
+      ? `https://html5.gamedistribution.com/${data.gameSearched?.md5}`
+      : "";
 
   const handleIframeError = () => {
     setIframeError(true);
   };
 
-  if (loading) return <div className="flex justify-center items-center h-screen"><LoadingHamster /></div>;
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <LoadingHamster />
+      </div>
+    );
 
-  if (error || iframeError) return <p className="text-center text-xl text-red-500">Oops! Le jeu n'a pas réussi à se charger.</p>;
+  if (error || iframeError)
+    return (
+      <p className="text-center text-xl text-red-500">
+        Oops! Le jeu n'a pas réussi à se charger.
+      </p>
+    );
 
   // Function to format date
   const formatDate = (dateString: string | number | Date) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options)
-  }
+    const options = { year: "numeric", month: "long", day: "numeric" };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
 
   return (
-    <div className="flex flex-col items-center justify-center bg-[#2e2e52] p-4">
-      <h1 className="text-4xl text-white font-bold mb-4">{data?.gameSearched?.title}</h1>
+    <div className="flex w-[99%] rounded-md flex-col items-center justify-center bg-[#2e2e52] p-4">
+      <h1 className="text-4xl text-white font-bold mb-4">
+        {data?.gameSearched?.title}
+      </h1>
       <div className="h-[70vh] w-full lg:w-[90%] rounded-md overflow-hidden my-4">
         <iframe
           id="game-iframe"
@@ -77,11 +89,15 @@ const GamePage = (props: Props) => {
       <div className="w-full lg:w-[90%] text-white text-lg">
         <div className="my-2">
           <h2 className="text-2xl font-bold mb-2">Description</h2>
-          <p className="bg-gray-800 p-4 rounded-md">{data?.gameSearched?.description}</p>
+          <p className="bg-gray-800 p-4 rounded-md">
+            {data?.gameSearched?.description}
+          </p>
         </div>
         <div className="my-2">
           <h2 className="text-2xl font-bold mb-2">Instruction</h2>
-          <p className="bg-gray-800 p-4 rounded-md">{data?.gameSearched?.instruction}</p>
+          <p className="bg-gray-800 p-4 rounded-md">
+            {data?.gameSearched?.instruction}
+          </p>
         </div>
         <div className="grid grid-cols-2 gap-4 my-4">
           <div className="bg-gray-800 p-4 rounded-md shadow-lg transition duration-500 ease-in-out transform hover:-translate-y-1 hover:scale-10">

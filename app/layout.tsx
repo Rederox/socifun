@@ -7,7 +7,6 @@ import { UserProvider } from "../contexts/UserProvider";
 import { useState } from "react";
 import { AvatarContext } from "@/contexts/AvatarContext";
 
-
 export default function RootLayout({
   children,
 }: {
@@ -22,7 +21,7 @@ export default function RootLayout({
           <html lang="en">
             <body>
               <Header />
-              <div className="bg-[#1a1a2e] flex flex-col py-3 items-center gap-2 pt-[7em]">
+              <div className="bg-[#1a1a2e] flex flex-col py-3 items-center gap-2 md:pt-[7em] pt-[5em]">
                 {children}
               </div>
               <Footer />
@@ -31,6 +30,5 @@ export default function RootLayout({
         </StrapiApolloProvider>
       </UserProvider>
     </AvatarContext.Provider>
-
   );
 }

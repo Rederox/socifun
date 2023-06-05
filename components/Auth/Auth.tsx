@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { UserContext } from "@/contexts/UserContextProps";
+import { UserContext } from "@/contexts/UserProvider";
 import { supabase } from "@/lib/supabaseClient";
 import { AnimatePresence, motion } from "framer-motion";
 

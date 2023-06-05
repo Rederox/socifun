@@ -4,19 +4,35 @@ import { supabase } from "@/lib/supabaseClient";
 import { motion, Variants } from "framer-motion";
 import Image from "next/image";
 import "../../styles/Auth.css";
+import { generateRandomAvatar } from "../Avatar/RandomAvatar";
 
 type SignUpProps = {
   setIsRegistering: React.Dispatch<React.SetStateAction<boolean>>;
   variants: Variants;
 };
 
+function generateRandomString(length: number) {
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
+}
+
 const SignUp: React.FC<SignUpProps> = ({ setIsRegistering, variants }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
+  const avatarProps = generateRandomAvatar();
+  const baseNickname = "User-";
+  const randomSuffix = generateRandomString(5);
+  const nickname = baseNickname + randomSuffix;
+
   const handleRegister = async () => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: username,
       password,
     });
@@ -26,7 +42,22 @@ const SignUp: React.FC<SignUpProps> = ({ setIsRegistering, variants }) => {
     } else {
       setErrorMessage("");
       setIsRegistering(false);
-      alert("A confirmation email has been sent to your email address.");
+      alert("Un mail de confiramtion à été envoyé dans votre boîte mail");
+
+      if (data?.user) {
+        const { error: profileError } = await supabase
+          .from("profiles")
+          .update({
+            full_name: nickname,
+            avatarMode: "avatar",
+            avatar_url: JSON.stringify(avatarProps),
+          })
+          .eq("id", data.user.id);
+
+        if (profileError) {
+          console.error(profileError);
+        }
+      }
     }
   };
 

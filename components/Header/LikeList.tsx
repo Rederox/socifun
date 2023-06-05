@@ -12,9 +12,14 @@ interface Game {
 interface LikeListProps {
   games: Game[];
   setLikedGames: React.Dispatch<React.SetStateAction<Game[]>>;
+  loading: boolean;
 }
 
-const LikeList: React.FC<LikeListProps> = ({ games, setLikedGames }) => {
+const LikeList: React.FC<LikeListProps> = ({
+  games,
+  setLikedGames,
+  loading,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -37,6 +42,10 @@ const LikeList: React.FC<LikeListProps> = ({ games, setLikedGames }) => {
       document.removeEventListener("mousedown", handleOutsideClick);
     };
   }, [isOpen]);
+
+  if (loading) {
+    return <p>Loading...</p>; // You can customize this to be a loading spinner or whatever you prefer.
+  }
 
   const handleRemoveGame = (gameId: string) => {
     setLikedGames(games.filter((game) => game.id !== gameId));
