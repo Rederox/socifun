@@ -1,3 +1,4 @@
+"use client"
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import React, { PropsWithChildren } from "react";
 

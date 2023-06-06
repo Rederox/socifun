@@ -1,4 +1,3 @@
-"use client";
 import StrapiApolloProvider from "@/graphql/apollo";
 import "../styles/globals.css";
 import Header from "@/components/Header/Header";

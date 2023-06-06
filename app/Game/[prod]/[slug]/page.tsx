@@ -1,18 +1,19 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
 import React, { useState } from "react";
-import { useRouter } from "next/router";
-import { from, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import {
   SearchBySlugDocument,
   SearchBySlugQuery,
   SearchBySlugQueryVariables,
 } from "@/generated";
-import StrapiApolloProvider from "@/graphql/apollo";
-import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
+
 import LoadingHamster from "@/components/LoadingSpinner/LoadingHamster";
 import Link from "next/link";
 import { BiFullscreen } from "react-icons/bi";
+
+import { AiFillLike as Like, AiFillDislike as Dislike, AiFillEye as View } from "react-icons/ai"
+import { MdOutlineFavorite as Favorite } from "react-icons/md";
 
 interface Props {
   params: {
@@ -40,8 +41,8 @@ const GamePage = (props: Props) => {
     prod === "CG"
       ? `https://games.crazygames.com/en_US/${slug}/index.html`
       : prod === "GD" && data
-      ? `https://html5.gamedistribution.com/${data.gameSearched?.md5}`
-      : "";
+        ? `https://html5.gamedistribution.com/${data.gameSearched?.md5}`
+        : "";
 
   const handleIframeError = () => {
     setIframeError(true);
@@ -114,11 +115,12 @@ const GamePage = (props: Props) => {
           data-hj-allow-iframe="true"
           onError={handleIframeError}
         ></iframe>
-        <div className="flex justify-center gap-4">
-          <div>Vue</div>
-          <div>Like</div>
-          <div>Dislike</div>
-          <div>Favoris</div>
+        <div className="flex justify-center items-center gap-4 flex-wrap
+        ">
+          <div className="flex flex-row items-center justify-center gap-1 text-white"><View className="text-[#1d1dff] text-[26px] cursor-pointer" />1</div>
+          <div className="flex flex-row items-center justify-center gap-1 text-white"><Like className="text-[#3474ff] text-[26px] cursor-pointer" />3</div>
+          <div className="flex flex-row items-center justify-center gap-1 text-white"><Dislike className="text-[#3474ff] text-[26px] cursor-pointer" />4</div>
+          <div className="flex flex-row items-center justify-center gap-1 text-white"><Favorite className="text-[#999999] text-[26px] cursor-pointer" />5</div>
         </div>
       </div>
       <div className="w-full lg:w-[90%] text-white text-lg">
@@ -136,7 +138,7 @@ const GamePage = (props: Props) => {
         </div>
         <div className="grid grid-cols-2 gap-4 my-4">
           <div className="bg-gray-800 p-4 rounded-md shadow-lg transition duration-500 ease-in-out transform hover:-translate-y-1 hover:scale-10">
-            <h2 className="font-bold mb-2 text-xl">Categories</h2>
+            <h2 className="font-bold mb-2 text-xl">Catégories</h2>
             <div className="flex flex-wrap">
               {data?.gameSearched?.categories?.map((category, i) => (
                 <Link href={`/Category/${category}`} key={category + i}>
@@ -148,15 +150,15 @@ const GamePage = (props: Props) => {
             </div>
           </div>
           <div className="bg-gray-800 p-4 rounded-md shadow-lg transition duration-500 ease-in-out transform hover:-translate-y-1 hover:scale-10">
-            <h2 className="font-bold mb-2 text-xl">Company</h2>
+            <h2 className="font-bold mb-2 text-xl">Entreprise</h2>
             <p>{data?.gameSearched?.company}</p>
           </div>
           <div className="bg-gray-800 p-4 rounded-md shadow-lg transition duration-500 ease-in-out transform hover:-translate-y-1 hover:scale-10">
-            <h2 className="font-bold mb-2 text-xl">Type & Sub Type</h2>
+            <h2 className="font-bold mb-2 text-xl">Type</h2>
             <p>{`${data?.gameSearched?.type} / ${data?.gameSearched?.subType}`}</p>
           </div>
           <div className="bg-gray-800 p-4 rounded-md shadow-lg transition duration-500 ease-in-out transform hover:-translate-y-1 hover:scale-10">
-            <h2 className="font-bold mb-2 text-xl">Published At</h2>
+            <h2 className="font-bold mb-2 text-xl">Sortie le</h2>
             <p>{formatDate(data?.gameSearched?.publishedAt)}</p>
           </div>
         </div>

@@ -21,6 +21,7 @@ const Profile: React.FC = () => {
   const [fullName, setFullName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [avatarMode, setAvatarMode] = useState("");
+
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -35,6 +36,7 @@ const Profile: React.FC = () => {
   }
 
   const { user, setUser, loading } = context;
+  const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -99,6 +101,12 @@ const Profile: React.FC = () => {
         .eq("id", user?.id);
 
       if (error) {
+        if (error.code == "23505") {
+          setErrorMsg("Le pseudo déja prise");
+        } else {
+          setErrorMsg(error.message);
+        }
+
         console.error("Error updating profile:", error);
       } else {
         setPreviewImage(null);
@@ -137,6 +145,7 @@ const Profile: React.FC = () => {
           width={970}
           height={250}
           className="object-fill w-full rounded-[8px]"
+          priority
         />
         <button
           onClick={openModal}
@@ -206,12 +215,19 @@ const Profile: React.FC = () => {
               Pseudo
               <input
                 type="text"
-                value={username}
+                value={username ? username : ""}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Pseudo"
                 className="transition duration-300 ease-in-out bg-gray-800 text-white w-full rounded-md px-3 py-2 mt-2 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
               />
             </label>
+            <div>
+              {
+                errorMsg && (
+                  < p className=" text-red-600">{errorMsg}</p>
+                )
+              }
+            </div>
 
             <label>
               Nom
@@ -295,8 +311,9 @@ const Profile: React.FC = () => {
             </div>
           </div>
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 };
 

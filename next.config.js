@@ -7,9 +7,9 @@ const nextConfig = {
       'cspgaovwyijhefsrqskl.supabase.co'
     ],
   },
-  experimental: {
-    appDir: true,
-  },
+  // experimental: {
+  //   appDir: true,
+  // },
 }
 
 module.exports = nextConfig
