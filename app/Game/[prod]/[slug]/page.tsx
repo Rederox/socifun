@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useQuery } from "@apollo/client";
 import {
   SearchBySlugDocument,
@@ -11,9 +11,24 @@ import {
 import LoadingHamster from "@/components/LoadingSpinner/LoadingHamster";
 import Link from "next/link";
 import { BiFullscreen } from "react-icons/bi";
+import "../../../../styles/game-like.css";
 
-import { AiFillLike as Like, AiFillDislike as Dislike, AiFillEye as View } from "react-icons/ai"
+import {
+  AiFillLike as Like,
+  AiFillDislike as Dislike,
+  AiFillEye as View,
+} from "react-icons/ai";
 import { MdOutlineFavorite as Favorite } from "react-icons/md";
+import {
+  createGame,
+  createGameAndReview,
+  findGameBySlug,
+  findUserGameReview,
+  getReviews,
+  getSlugGameid,
+  updateGameReview,
+} from "@/components/Game/gameFunction";
+import { UserContext } from "@/contexts/UserProvider";
 
 interface Props {
   params: {
@@ -26,6 +41,13 @@ const GamePage = (props: Props) => {
   const slug = props.params.slug;
   const prod = props.params.prod;
 
+  const context = useContext(UserContext);
+  if (!context) {
+    throw new Error("Header component must be used within a UserProvider");
+  }
+
+  const { user, setUser, loading: userLoading } = context;
+
   const [iframeError, setIframeError] = useState(false);
 
   const { data, error, loading } = useQuery<
@@ -37,12 +59,39 @@ const GamePage = (props: Props) => {
     },
   });
 
+  const [likes, setLikes] = useState();
+  const [dislikes, setDislikes] = useState();
+  const [views, setViews] = useState();
+
+  useEffect(() => {
+    (async () => {
+      if (!(await findGameBySlug(slug))) {
+        const insert = await createGameAndReview(slug);
+      } else {
+        const gameId = await getSlugGameid(slug);
+
+        const update = await updateGameReview(gameId, "increaseViews");
+
+        const reviews = await getReviews(gameId);
+        setLikes(reviews.likes);
+        setDislikes(reviews.dislikes);
+        setViews(reviews.views);
+        console.log(update);
+      }
+    })();
+  }, [slug]);
+
+  // (async () => {
+  //   const gameId = await getSlugGameid(slug);
+  //   const update = await updateGameReview(gameId, "increaseViews");
+  // })();
+
   const iframeUrl =
     prod === "CG"
       ? `https://games.crazygames.com/en_US/${slug}/index.html`
       : prod === "GD" && data
-        ? `https://html5.gamedistribution.com/${data.gameSearched?.md5}`
-        : "";
+      ? `https://html5.gamedistribution.com/${data.gameSearched?.md5}`
+      : "";
 
   const handleIframeError = () => {
     setIframeError(true);
@@ -107,20 +156,40 @@ const GamePage = (props: Props) => {
           className="w-full h-full"
           src={iframeUrl}
           title={data?.gameSearched?.title || ""}
-          scrolling="no"
-          allow="autoplay; payment; fullscreen; microphone; focus-without-user-activation *; screen-wake-lock; gamepad; clipboard-read; clipboard-write;"
-          allowFullScreen
-          sandbox="allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-presentation allow-scripts allow-same-origin allow-downloads allow-popups"
-          loading="eager"
-          data-hj-allow-iframe="true"
           onError={handleIframeError}
         ></iframe>
-        <div className="flex justify-center items-center gap-4 flex-wrap
-        ">
-          <div className="flex flex-row items-center justify-center gap-1 text-white"><View className="text-[#1d1dff] text-[26px] cursor-pointer" />1</div>
-          <div className="flex flex-row items-center justify-center gap-1 text-white"><Like className="text-[#3474ff] text-[26px] cursor-pointer" />3</div>
-          <div className="flex flex-row items-center justify-center gap-1 text-white"><Dislike className="text-[#3474ff] text-[26px] cursor-pointer" />4</div>
-          <div className="flex flex-row items-center justify-center gap-1 text-white"><Favorite className="text-[#999999] text-[26px] cursor-pointer" />5</div>
+        <div
+          className="flex justify-center items-center gap-4 flex-wrap
+        "
+        >
+          <div className="flex flex-row items-center justify-center gap-1 text-white">
+            <View className="text-[26px] cursor-pointer" />
+            {views ? views : 0}
+          </div>
+          <div className="flex flex-row items-center justify-center gap-1 text-white">
+            <Like className=" text-[26px] cursor-pointer" />
+            {likes ? likes : 0}
+          </div>
+          <div className="flex flex-row items-center justify-center gap-1 text-white">
+            <Dislike className=" text-[26px] cursor-pointer" />
+            {dislikes ? dislikes : 0}
+          </div>
+          <div className="flex flex-row items-center justify-center gap-1 text-white">
+            <label className="container">
+              <input type="checkbox" />
+              <div className="checkmark">
+                <svg viewBox="0 0 256 256">
+                  <rect fill="none" height="256" width="256"></rect>
+                  <path
+                    d="M224.6,51.9a59.5,59.5,0,0,0-43-19.9,60.5,60.5,0,0,0-44,17.6L128,59.1l-7.5-7.4C97.2,28.3,59.2,26.3,35.9,47.4a59.9,59.9,0,0,0-2.3,87l83.1,83.1a15.9,15.9,0,0,0,22.6,0l81-81C243.7,113.2,245.6,75.2,224.6,51.9Z"
+                    strokeWidth="20px"
+                    stroke="#FFF"
+                    fill="none"
+                  ></path>
+                </svg>
+              </div>
+            </label>
+          </div>
         </div>
       </div>
       <div className="w-full lg:w-[90%] text-white text-lg">
