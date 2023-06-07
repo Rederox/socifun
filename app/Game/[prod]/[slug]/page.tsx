@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useQuery } from "@apollo/client";
 import {
   SearchBySlugDocument,
@@ -22,6 +22,7 @@ import { MdOutlineFavorite as Favorite } from "react-icons/md";
 import {
   createGame,
   createGameAndReview,
+  createUserGameReview,
   findGameBySlug,
   findUserGameReview,
   getReviews,
@@ -40,6 +41,8 @@ interface Props {
 const GamePage = (props: Props) => {
   const slug = props.params.slug;
   const prod = props.params.prod;
+  const [gameId, setGameId] = useState<number>();
+  // const likeButton = useRef(null);
 
   const context = useContext(UserContext);
   if (!context) {
@@ -59,7 +62,7 @@ const GamePage = (props: Props) => {
     },
   });
 
-  const [likes, setLikes] = useState();
+  const [likes, setLikes] = useState(0);
   const [dislikes, setDislikes] = useState();
   const [views, setViews] = useState();
 
@@ -68,18 +71,37 @@ const GamePage = (props: Props) => {
       if (!(await findGameBySlug(slug))) {
         const insert = await createGameAndReview(slug);
       } else {
-        const gameId = await getSlugGameid(slug);
+        const gameId = await getSlugGameid(slug); // récuperer les id de slug
+        setGameId(gameId);
+        await updateGameReview(gameId, "increaseViews");
 
-        const update = await updateGameReview(gameId, "increaseViews");
 
         const reviews = await getReviews(gameId);
         setLikes(reviews.likes);
         setDislikes(reviews.dislikes);
         setViews(reviews.views);
-        console.log(update);
       }
+
     })();
   }, [slug]);
+
+  const handleLike = () => {
+    console.log("=====================" + gameId);
+    if (user) {
+      if (gameId) {
+        (async () => {
+          await createUserGameReview(
+            user?.id,
+            gameId,
+            "like"
+          )
+          setLikes(likes + 1);
+        })();
+      }
+    }
+  }
+
+  console.log(likes);
 
   // (async () => {
   //   const gameId = await getSlugGameid(slug);
@@ -90,8 +112,8 @@ const GamePage = (props: Props) => {
     prod === "CG"
       ? `https://games.crazygames.com/en_US/${slug}/index.html`
       : prod === "GD" && data
-      ? `https://html5.gamedistribution.com/${data.gameSearched?.md5}`
-      : "";
+        ? `https://html5.gamedistribution.com/${data.gameSearched?.md5}`
+        : "";
 
   const handleIframeError = () => {
     setIframeError(true);
@@ -104,9 +126,15 @@ const GamePage = (props: Props) => {
       </div>
     );
 
+
+
+
+
+
+
   if (error || iframeError)
     return (
-      <p className="text-center text-xl text-red-500">
+      <p className="text-center text-xl text-red-500 flex items-center justify-center h-screen">
         Oops! Le jeu n'a pas réussi à se charger.
       </p>
     );
@@ -162,12 +190,12 @@ const GamePage = (props: Props) => {
           className="flex justify-center items-center gap-4 flex-wrap
         "
         >
-          <div className="flex flex-row items-center justify-center gap-1 text-white">
-            <View className="text-[26px] cursor-pointer" />
+          <div className="flex flex-row items-center justify-center gap-1 text-[#9c9c9c]">
+            <View className="text-[26px] " />
             {views ? views : 0}
           </div>
-          <div className="flex flex-row items-center justify-center gap-1 text-white">
-            <Like className=" text-[26px] cursor-pointer" />
+          <div className="flex flex-row items-center justify-center gap-1 text-white" >
+            <Like className=" text-[26px] cursor-pointer" onClick={handleLike} />
             {likes ? likes : 0}
           </div>
           <div className="flex flex-row items-center justify-center gap-1 text-white">

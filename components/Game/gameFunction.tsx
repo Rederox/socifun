@@ -105,7 +105,6 @@ export async function updateGameReview(gameId: number, action: string) {
     throw new Error("No game with given id found");
   }
 
-  console.log(currentData);
   let updates: { likes?: number; dislikes?: number; views?: number } = {};
   const gameReview = currentData[0];
 
@@ -153,7 +152,7 @@ export async function updateUserGameReview(
 }
 
 export async function createUserGameReview(
-  profileId: number,
+  profileId: string,
   gameId: number,
   reviewAction: string
 ) {
@@ -162,5 +161,11 @@ export async function createUserGameReview(
     .insert([{ id_profile: profileId, id_game: gameId, reviewAction }]);
 
   if (error) throw error;
+
+  if (reviewAction == "like") {
+    updateGameReview(gameId, "increaseLikes")
+  } else if (reviewAction == "dislike") {
+    updateGameReview(gameId, "decreaseLikes")
+  }
   return data;
 }
