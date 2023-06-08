@@ -1,18 +1,16 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useQuery } from "@apollo/client";
 import {
   SearchBySlugDocument,
   SearchBySlugQuery,
   SearchBySlugQueryVariables,
 } from "@/generated";
-
 import LoadingHamster from "@/components/LoadingSpinner/LoadingHamster";
 import Link from "next/link";
 import { BiFullscreen } from "react-icons/bi";
 import "../../../../styles/game-like.css";
-
 import {
   AiFillLike as Like,
   AiFillDislike as Dislike,
@@ -20,117 +18,184 @@ import {
 } from "react-icons/ai";
 import { MdOutlineFavorite as Favorite } from "react-icons/md";
 import {
-  createGame,
+  checkIfFavorited,
+  createFavorite,
   createGameAndReview,
   createUserGameReview,
   findGameBySlug,
   findUserGameReview,
   getReviews,
   getSlugGameid,
+  removeFavorite,
   updateGameReview,
+  updateUserGameReview,
 } from "@/components/Game/gameFunction";
 import { UserContext } from "@/contexts/UserProvider";
+import CountUp from "react-countup";
+import Image from "next/image";
 
 interface Props {
-  params: {
-    prod: string;
-    slug: string;
-  };
+  params: { prod: string; slug: string };
 }
 
-const GamePage = (props: Props) => {
-  const slug = props.params.slug;
-  const prod = props.params.prod;
-  const [gameId, setGameId] = useState<number>();
-  // const likeButton = useRef(null);
-
+const GamePage = ({ params: { prod, slug } }: Props) => {
   const context = useContext(UserContext);
   if (!context) {
-    throw new Error("Header component must be used within a UserProvider");
+    throw new Error("GamePage component must be used within a UserProvider");
   }
-
-  const { user, setUser, loading: userLoading } = context;
+  const { user, setUser, loading } = context;
 
   const [iframeError, setIframeError] = useState(false);
-
-  const { data, error, loading } = useQuery<
-    SearchBySlugQuery,
-    SearchBySlugQueryVariables
-  >(SearchBySlugDocument, {
-    variables: {
-      slug: slug?.toString() || "",
-    },
-  });
-
+  const {
+    data,
+    error,
+    loading: loadingUser,
+  } = useQuery<SearchBySlugQuery, SearchBySlugQueryVariables>(
+    SearchBySlugDocument,
+    {
+      variables: { slug: slug?.toString() || "" },
+    }
+  );
+  const [gameId, setGameId] = useState<number>();
+  const [isLoadingGame, setIsLoadingGame] = useState(true);
   const [likes, setLikes] = useState(0);
-  const [dislikes, setDislikes] = useState();
-  const [views, setViews] = useState();
+  const [dislikes, setDislikes] = useState(0);
+  const [views, setViews] = useState(0);
+
+  const [liked, setLiked] = useState(false);
+  const [disLiked, setDisliked] = useState(false);
+  const [favorited, setFavorited] = useState(false);
 
   useEffect(() => {
-    (async () => {
-      if (!(await findGameBySlug(slug))) {
-        const insert = await createGameAndReview(slug);
-      } else {
-        const gameId = await getSlugGameid(slug); // récuperer les id de slug
+    const fetchData = async () => {
+      setIsLoadingGame(true);
+      if (data?.gameSearched?.title && data?.gameSearched?.md5) {
+        if (!(await findGameBySlug(slug))) {
+          await createGameAndReview(
+            slug,
+            data.gameSearched.title,
+            data.gameSearched.md5
+          );
+        }
+        const gameId = await getSlugGameid(slug);
         setGameId(gameId);
         await updateGameReview(gameId, "increaseViews");
-
 
         const reviews = await getReviews(gameId);
         setLikes(reviews.likes);
         setDislikes(reviews.dislikes);
         setViews(reviews.views);
       }
+      setIsLoadingGame(false);
+    };
+    fetchData();
+  }, [slug, data]);
 
-    })();
-  }, [slug]);
+  useEffect(() => {
+    const fetchUserReview = async () => {
+      if (user && user.id && gameId) {
+        const review = await findUserGameReview(user.id, gameId);
+        if (review) {
+          if (review.reviewAction == "like") {
+            setLiked(true);
+          } else if (review.reviewAction == "dislike") {
+            setDisliked(true);
+          }
+        }
+      }
+    };
 
-  const handleLike = () => {
-    console.log("=====================" + gameId);
-    if (user) {
-      if (gameId) {
-        (async () => {
-          await createUserGameReview(
-            user?.id,
-            gameId,
-            "like"
-          )
-          setLikes(likes + 1);
-        })();
+    fetchUserReview();
+  }, [user, gameId]);
+
+  const handleLike = async () => {
+    if (user && user.id && gameId && !isLoadingGame) {
+      // Vérifiez d'abord si l'utilisateur a déjà fait une review pour ce jeu
+      const userReview = await findUserGameReview(user.id, gameId);
+
+      // Si l'utilisateur n'a pas déjà fait une review pour ce jeu, créez-en une
+      if (userReview == null) {
+        await createUserGameReview(user.id, gameId, "like");
+        setLikes((prev) => prev + 1);
+        setLiked(true);
+      }
+      // Si l'utilisateur a déjà fait une review et qu'elle est "dislike", mettez à jour la review en "like"
+      else if (userReview.reviewAction == "dislike") {
+        await updateUserGameReview(user.id, gameId, "like");
+        setLikes((prev) => prev + 1);
+        setDislikes((prev) => prev - 1);
+        setLiked(true);
+        setDisliked(false);
       }
     }
-  }
+  };
 
-  console.log(likes);
+  const handleDislike = async () => {
+    if (user && user.id && gameId && !isLoadingGame) {
+      const existingReview = await findUserGameReview(user.id, gameId);
 
-  // (async () => {
-  //   const gameId = await getSlugGameid(slug);
-  //   const update = await updateGameReview(gameId, "increaseViews");
-  // })();
+      if (existingReview) {
+        if (existingReview.reviewAction === "dislike") {
+          return;
+        } else {
+          await updateUserGameReview(user.id, gameId, "dislike");
+          if (existingReview.reviewAction === "like") {
+            setLikes((prev) => prev - 1);
+            setLiked(false);
+          }
+        }
+      } else {
+        await createUserGameReview(user.id, gameId, "dislike");
+      }
+
+      setDislikes((prev) => prev + 1);
+      setDisliked(true);
+    }
+  };
+
+  useEffect(() => {
+    const checkFavoriteStatus = async () => {
+      if (user && user.id && gameId) {
+        const isFavorited = await checkIfFavorited(user.id, gameId);
+        setFavorited(isFavorited);
+      }
+    };
+
+    checkFavoriteStatus();
+  }, [user, gameId]);
+
+  const [favoriting, setFavoriting] = useState(false);
+  const toggleFavorite = async () => {
+    if (user && user.id && gameId && !isLoadingGame && !favoriting) {
+      setFavoriting(true);
+      const alreadyFavorited = await checkIfFavorited(user.id, gameId);
+      if (alreadyFavorited) {
+        await removeFavorite(user.id, gameId);
+        setFavorited(false);
+      } else {
+        await createFavorite(user.id, gameId);
+        setFavorited(true);
+      }
+      setFavoriting(false);
+    }
+  };
 
   const iframeUrl =
     prod === "CG"
       ? `https://games.crazygames.com/en_US/${slug}/index.html`
       : prod === "GD" && data
-        ? `https://html5.gamedistribution.com/${data.gameSearched?.md5}`
-        : "";
+      ? `https://html5.gamedistribution.com/${data.gameSearched?.md5}`
+      : "";
 
-  const handleIframeError = () => {
-    setIframeError(true);
-  };
+  const handleIframeError = () => setIframeError(true);
 
   if (loading)
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex flex-col justify-center items-center h-screen">
+        <Image src={"/logoFull.svg"} alt={""} width={300} height={300} />
         <LoadingHamster />
       </div>
     );
-
-
-
-
-
-
 
   if (error || iframeError)
     return (
@@ -139,7 +204,6 @@ const GamePage = (props: Props) => {
       </p>
     );
 
-  // Function to format date
   const formatDate = (dateString: string | number | Date) => {
     const options: Intl.DateTimeFormatOptions = {
       year: "numeric",
@@ -151,17 +215,7 @@ const GamePage = (props: Props) => {
 
   const goFullscreen = () => {
     const iframe = document.getElementById("game-iframe") as HTMLIFrameElement;
-
-    if (iframe.requestFullscreen) {
-      iframe.requestFullscreen();
-    } else if (iframe.requestFullscreen) {
-      // Firefox
-      iframe.requestFullscreen();
-    } else if (iframe.requestFullscreen) {
-      // Chrome, Safari and Opera
-      iframe.requestFullscreen();
-    } else if (iframe.requestFullscreen) {
-      // IE/Edge
+    if (iframe) {
       iframe.requestFullscreen();
     }
   };
@@ -192,19 +246,29 @@ const GamePage = (props: Props) => {
         >
           <div className="flex flex-row items-center justify-center gap-1 text-[#9c9c9c]">
             <View className="text-[26px] " />
-            {views ? views : 0}
-          </div>
-          <div className="flex flex-row items-center justify-center gap-1 text-white" >
-            <Like className=" text-[26px] cursor-pointer" onClick={handleLike} />
-            {likes ? likes : 0}
+            <CountUp end={views ? views : 0} duration={0.8} />
           </div>
           <div className="flex flex-row items-center justify-center gap-1 text-white">
-            <Dislike className=" text-[26px] cursor-pointer" />
-            {dislikes ? dislikes : 0}
+            <Like
+              className={`text-[26px] cursor-pointer ${
+                liked ? "text-blue-500" : ""
+              }`}
+              onClick={handleLike}
+            />
+            <CountUp end={likes ? likes : 0} duration={0.8} />
           </div>
           <div className="flex flex-row items-center justify-center gap-1 text-white">
-            <label className="container">
-              <input type="checkbox" />
+            <Dislike
+              className={`text-[26px] cursor-pointer ${
+                disLiked ? "text-blue-500" : ""
+              }`}
+              onClick={handleDislike}
+            />
+            <CountUp end={dislikes ? dislikes : 0} duration={0.8} />
+          </div>
+          <div className="flex flex-row items-center justify-center gap-1 text-white">
+            <label className="container" onClick={toggleFavorite}>
+              <input type="checkbox" checked={favorited} readOnly />
               <div className="checkmark">
                 <svg viewBox="0 0 256 256">
                   <rect fill="none" height="256" width="256"></rect>

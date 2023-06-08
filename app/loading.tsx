@@ -4,6 +4,7 @@ import React from "react";
 import { MoonLoader } from "react-spinners";
 import { motion } from "framer-motion";
 import "../styles/Loading.css";
+import Image from "next/image";
 
 const textVariants = {
   hidden: { opacity: 0, y: -10 },
@@ -14,9 +15,8 @@ const LoadingPage: React.FC = () => {
   return (
     <div className="w-[99%] rounded-md h-screen flex flex-col items-center justify-center bg-[#2e2e52] z-20 text-white">
       <motion.div initial="hidden" animate="visible" variants={textVariants}>
-        <h1 className="text-4xl font-bold mb-4">Socifun</h1>
+        <Image src={"/logoFull.svg"} alt={""} width={300} height={300} />
       </motion.div>
-      {/* <MoonLoader color="#3b82f6" loading={true} size={50} /> */}
       <motion.div
         initial="hidden"
         animate="visible"

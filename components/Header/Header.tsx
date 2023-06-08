@@ -1,11 +1,19 @@
 "use client";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Image from "next/image";
 import Profil from "./userMenu";
 import LikeList from "./LikeList";
 import Random from "./Random";
 import Link from "next/link";
 import { UserContext } from "@/contexts/UserProvider";
+import { getFavoriteGames } from "../Game/gameFunction";
+
+interface Game {
+  id: number;
+  name: string;
+  image: string;
+  slug: string;
+}
 
 const Header = () => {
   const context = useContext(UserContext);
@@ -15,18 +23,31 @@ const Header = () => {
 
   const { user, setUser, loading } = context;
 
-  const [likedGames, setLikedGames] = useState([
-    {
-      id: "e063dd2a16cb46fe871e4199007a8b24",
-      name: "IDLE MINER SPACE RUSH",
-      image: "/avatar.jpg",
-    },
-    {
-      id: "e063dd2a16cb46fe871e4199007a8b22",
-      name: "Game B",
-      image: "/avatar.jpg",
-    },
-  ]);
+  const [likedGames, setLikedGames] = useState<Game[]>([]);
+
+  useEffect(() => {
+    const favorite = async () => {
+      if (user) {
+        const result = await getFavoriteGames(user?.id);
+        const transformedData = result.map((game) => {
+          const gameData = game.games as {
+            title: string;
+            slug: string;
+            md5: string;
+          };
+          return {
+            id: game.id_game,
+            name: gameData.title,
+            image: `https://img.gamedistribution.com/${gameData.md5}-512x512.jpeg`,
+            slug: gameData.slug,
+          };
+        });
+
+        setLikedGames(transformedData);
+      }
+    };
+    favorite();
+  }, [user]);
 
   return (
     <header className="bg-[#21243d] backdrop-filter backdrop-blur-lg text-white py-4 px-6 m-0 w-full z-50 fixed flex justify-between items-center md:h-[105px] h-[75px]">
@@ -38,7 +59,7 @@ const Header = () => {
         <Image src={"/logoSingle.svg"} alt={""} width={25} height={0} />
       </Link>
       {/* Bouton milieu Mystere */}
-      <div>
+      <div className="mr-[76px]">
         <Random />
       </div>
       {/* Likelist + Profil */}

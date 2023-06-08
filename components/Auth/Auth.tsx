@@ -36,7 +36,7 @@ const AuthComp: React.FC = () => {
   };
 
   return (
-    <div className="flex items-center justify-center bg-[#21243d] py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <div className="flex items-center justify-center w-[90vw] sm:w-[500px] md:w-[500px] bg-[#21243d] py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
       <AnimatePresence mode="wait">
         {isRegistering ? (
           <SignUp

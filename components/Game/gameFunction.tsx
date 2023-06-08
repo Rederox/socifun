@@ -15,9 +15,11 @@ export async function findGameBySlug(slug: string) {
   return true;
 }
 
-export async function createGame(slug: string) {
+export async function createGame(slug: string, title: string, md5: string) {
   // Ajouter une ligne dans games avec son slug et ça retourne l'id_game
-  const { data, error } = await supabase.from("games").insert([{ slug }]);
+  const { data, error } = await supabase
+    .from("games")
+    .insert([{ slug, title, md5 }]);
 
   if (error) {
     console.error(error);
@@ -39,13 +41,17 @@ export async function createGame(slug: string) {
   return insertedData?.id_game;
 }
 
-export async function createGameAndReview(slug: string) {
+export async function createGameAndReview(
+  slug: string,
+  title: string,
+  md5: string
+) {
   // ajouter une ligne dans gameReview avec id_game, likes = 0, dislikes = 0 et views = 1
-  const gameId = await createGame(slug);
+  const gameId = await createGame(slug, title, md5);
 
   const { data: reviewData, error: reviewError } = await supabase
     .from("gameReview")
-    .insert([{ id_game: gameId, likes: 0, dislikes: 0, views: 1 }]);
+    .insert([{ id_game: gameId, likes: 0, dislikes: 0, views: 0 }]);
 
   if (reviewError) throw reviewError;
 }
@@ -86,11 +92,15 @@ export async function findUserGameReview(profileId: string, gameId: number) {
     .from("userGamesReviews")
     .select("*")
     .eq("id_profile", profileId)
-    .eq("id_game", gameId)
-    .single();
+    .eq("id_game", gameId);
 
   if (error) throw error;
-  return data;
+
+  if (data && data.length > 0) {
+    return data[0]; // Retourne le premier avis si il y en a
+  } else {
+    return null; // Retourne null si il n'y a pas d'avis
+  }
 }
 
 export async function updateGameReview(gameId: number, action: string) {
@@ -119,10 +129,10 @@ export async function updateGameReview(gameId: number, action: string) {
       updates.views = (gameReview.views || 0) + 1;
       break;
     case "decreaseLikes":
-      updates.likes = (gameReview.likes || 0) - 1;
+      updates.likes = gameReview.likes > 0 ? gameReview.likes - 1 : 0;
       break;
     case "decreaseDislikes":
-      updates.dislikes = (gameReview.dislikes || 0) - 1;
+      updates.dislikes = gameReview.dislikes > 0 ? gameReview.dislikes - 1 : 0;
       break;
   }
 
@@ -137,7 +147,7 @@ export async function updateGameReview(gameId: number, action: string) {
 }
 
 export async function updateUserGameReview(
-  profileId: number,
+  profileId: string,
   gameId: number,
   reviewAction: any
 ) {
@@ -148,6 +158,13 @@ export async function updateUserGameReview(
     .eq("id_game", gameId);
 
   if (error) throw error;
+  if (reviewAction == "like") {
+    updateGameReview(gameId, "increaseLikes");
+    updateGameReview(gameId, "decreaseDislikes");
+  } else if (reviewAction == "dislike") {
+    updateGameReview(gameId, "increaseDislikes");
+    updateGameReview(gameId, "decreaseLikes");
+  }
   return data;
 }
 
@@ -163,9 +180,71 @@ export async function createUserGameReview(
   if (error) throw error;
 
   if (reviewAction == "like") {
-    updateGameReview(gameId, "increaseLikes")
+    updateGameReview(gameId, "increaseLikes");
   } else if (reviewAction == "dislike") {
-    updateGameReview(gameId, "decreaseLikes")
+    updateGameReview(gameId, "increaseDislikes");
   }
+  return data;
+}
+
+export async function checkIfFavorited(userId: string, gameId: number) {
+  const { data, error } = await supabase
+    .from("favorite")
+    .select("*")
+    .eq("id_profile", userId)
+    .eq("id_game", gameId);
+
+  if (error) {
+    console.error(error);
+    throw error;
+  }
+
+  // Si un enregistrement existe, cela signifie que le jeu est déjà favori de l'utilisateur
+  if (data && data.length > 0) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+export async function createFavorite(profileId: string, gameId: number) {
+  const { data, error } = await supabase
+    .from("favorite")
+    .insert([{ id_profile: profileId, id_game: gameId }]);
+
+  if (error) {
+    console.error(error);
+    throw error;
+  }
+
+  return data;
+}
+
+export async function removeFavorite(profileId: string, gameId: number) {
+  const { data, error } = await supabase
+    .from("favorite")
+    .delete()
+    .eq("id_profile", profileId)
+    .eq("id_game", gameId);
+
+  if (error) {
+    console.error(error);
+    throw error;
+  }
+
+  return data;
+}
+
+export async function getFavoriteGames(profileId: string) {
+  const { data, error } = await supabase
+    .from("favorite")
+    .select("id_game, games (title, slug, md5)")
+    .eq("id_profile", profileId);
+
+  if (error) {
+    console.error(error);
+    throw error;
+  }
+
   return data;
 }

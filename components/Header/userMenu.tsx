@@ -6,6 +6,7 @@ import { UserContext } from "@/contexts/UserProvider";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 import { Avatar } from "@bigheads/core";
 import Link from "next/link";
+import { FaUserCircle, FaSignOutAlt, FaUser } from "react-icons/fa";
 
 const Profil = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -69,6 +70,7 @@ const Profil = () => {
     await supabase.auth.signOut();
     setUser(null);
     setProfile(null);
+    location.host;
   };
 
   if (loading) {
@@ -77,55 +79,54 @@ const Profil = () => {
 
   return (
     <div className="relative" ref={menuRef}>
-      <div className="w-10 h-10 rounded-full overflow-hidden border bg-[#2e2e52]">
-        {user ? (
-          profile?.avatarMode === "image" ? (
-            <Image
-              src={profile?.avatar_url}
-              alt={"Profile"}
-              width={100}
-              height={100}
-              className="object-cover w-full h-full cursor-pointer"
-              onClick={toggleMenu}
-            />
-          ) : profile?.avatar_url ? (
-            <Avatar
-              {...JSON.parse(profile.avatar_url)}
-              onClick={toggleMenu}
-              className="cursor-pointer"
-            />
-          ) : (
-            <></>
-          )
-        ) : (
-          <Image
-            src={"/assets/login.svg"}
-            alt={"Profile"}
-            width={100}
-            height={100}
-            className="object-cover w-full h-full cursor-pointer"
-            onClick={toggleMenu}
-          />
-        )}
-      </div>
-      {isOpen && (
-        <div className="absolute -right-[1.5rem] md:right-0  mt-4 py-2 w-[100vw] md:w-[35vw] bg-slate-800 border-white border rounded-md shadow-xl z-[100]">
+      <button onClick={toggleMenu} className="focus:outline-none">
+        <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gray-800 bg-gray-800 text-white">
           {user ? (
-            <>
-              <button
-                onClick={handleSignOut}
-                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-              >
-                Sign Out
-              </button>
-              <Link href={"/Profile"}>
-                <h1 className="text-sm font-bold">Profile</h1>
-              </Link>
-            </>
+            profile?.avatarMode === "image" ? (
+              <Image
+                src={profile?.avatar_url}
+                alt={"Profile"}
+                width={100}
+                height={100}
+                className="object-cover w-full h-full cursor-pointer"
+              />
+            ) : profile?.avatar_url ? (
+              <Avatar
+                {...JSON.parse(profile.avatar_url)}
+                className="cursor-pointer"
+              />
+            ) : (
+              <FaUserCircle size="100%" />
+            )
           ) : (
-            <AuthComp />
+            <FaUser size="100%" />
           )}
         </div>
+      </button>
+      {isOpen && (
+        <>
+          {user ? (
+            <div className="absolute -right-1 md:right-0 mt-4 w-60 bg-gray-900 shadow-lg rounded-lg z-50 overflow-hidden transition-transform transform scale-95 duration-200 ease-out">
+              <div className="flex flex-col items-start space-y-1 px-4 py-2">
+                <Link href={"/Profile"}>
+                  <div className="flex items-center text-sm font-bold text-gray-300 hover:text-blue-500">
+                    <FaUser size="1.2em" className="mr-2" /> Profile
+                  </div>
+                </Link>
+                <button
+                  onClick={handleSignOut}
+                  className="flex items-center text-sm font-bold text-gray-300 hover:text-red-500"
+                >
+                  <FaSignOutAlt size="1.2em" className="mr-2" /> Sign Out
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="absolute -right-1 md:right-0 mt-4 w-auto bg-gray-900 shadow-lg rounded-lg z-50 overflow-hidden transition-transform transform scale-95 duration-200 ease-out">
+              <AuthComp />
+            </div>
+          )}
+        </>
       )}
     </div>
   );

@@ -1,24 +1,19 @@
-"use client"
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useQuery } from "@apollo/client";
-import { useRouter } from "next/navigation";
 
 import {
   GetRandomGameDocument,
   GetRandomGameQuery,
   GetRandomGameQueryVariables,
 } from "@/generated";
+import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 
-function Random() {
-  function getRandomNumber(max: number): number {
-    return Math.floor(Math.random() * max) + 1;
-  }
+function useRandomGame() {
+  const getRandomNumber = (max: number) => Math.floor(Math.random() * max) + 1;
+  const [RandomNum, setRandomNum] = useState(getRandomNumber(18854));
 
-  const [RandomNum, setRandomNum] = useState(getRandomNumber(10000));
-  const [slug, setSlug] = useState<string | null>(null);
-
-  const { data, error, loading, refetch } = useQuery<
+  const { data, loading, error, refetch } = useQuery<
     GetRandomGameQuery,
     GetRandomGameQueryVariables
   >(GetRandomGameDocument, {
@@ -29,25 +24,38 @@ function Random() {
     },
   });
 
+  const refetchRandomGame = () => {
+    setRandomNum(getRandomNumber(18854));
+    refetch();
+  };
+
+  return { data, loading, error, refetchRandomGame };
+}
+
+function Random() {
+  const [slug, setSlug] = useState<string | null>(null);
+  const { data, loading, error, refetchRandomGame } = useRandomGame();
+
   useEffect(() => {
-    if (data && data.gamesSearched?.hits?.[0]?.slugs?.[0]?.name) {
-      setSlug(data.gamesSearched.hits[0].slugs[0].name);
+    if (data && !loading) {
+      if (data.gamesSearched?.hits?.[0]?.slugs?.[0]?.name) {
+        setSlug(data.gamesSearched.hits[0].slugs[0].name);
+      } else {
+        refetchRandomGame();
+      }
+    } else if (error) {
+      refetchRandomGame();
     }
-  }, [data]);
+  }, [data, loading, error, refetchRandomGame]);
 
   const handleClick = () => {
     if (slug) {
       window.open(`/Game/GD/${slug}`, "_self");
-    } else {
-      setRandomNum(getRandomNumber(18854));
-      refetch();
     }
   };
 
-  if (error) {
-    console.log(error);
-    setRandomNum(getRandomNumber(18854));
-    refetch();
+  if (loading) {
+    return <LoadingSpinner />;
   }
 
   return (
