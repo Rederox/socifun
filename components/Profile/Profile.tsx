@@ -186,9 +186,19 @@ const Profile: React.FC = () => {
         </div>
         <div>
           <h1 className="md:text-3xl font-bold">{profile?.full_name}</h1>
-          <h3 className="md:text-[20px] text-[13px] text-gray-400  font-bold">
-            @{profile?.username}
-          </h3>
+          {
+            profile?.username ? (
+
+
+              <h3 className="md:text-[20px] text-[13px] text-gray-400  font-bold">
+                @{profile?.username}
+              </h3>
+            ) : (
+              <h3 className="md:text-[20px] text-[13px] text-gray-400  font-bold">
+                Pesudo non créer
+              </h3>
+            )
+          }
         </div>
       </div>
 

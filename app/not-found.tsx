@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unescaped-entities */
-"use client";
+'use client';
 import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
 import { motion } from "framer-motion";
 import Link from "next/link";

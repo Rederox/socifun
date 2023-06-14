@@ -1,8 +1,8 @@
+
 import { supabase } from "@/lib/supabaseClient";
 import { data } from "autoprefixer";
 
-export async function findGameBySlug(slug: string) {
-  // Récuperer si le slug existe  dans la bdd
+export async function findGameBySlug(slug: string) { // Récuperer si le slug existe  dans la bdd
   let { error } = await supabase
     .from("games")
     .select("id_game")
@@ -10,13 +10,12 @@ export async function findGameBySlug(slug: string) {
     .single();
 
   if (error) {
-    return false;
+    return false; // Error on retourne False doncl'utilisateur n'as pas etais trouver 
   }
-  return true;
+  return true; // utilsateur à étais trouver 
 }
 
-export async function createGame(slug: string, title: string, md5: string) {
-  // Ajouter une ligne dans games avec son slug et ça retourne l'id_game
+export async function createGame(slug: string, title: string, md5: string) {// Ajouter une ligne dans games avec son (slug, title et md5), ça retourne l'id_game
   const { data, error } = await supabase
     .from("games")
     .insert([{ slug, title, md5 }]);
@@ -38,15 +37,14 @@ export async function createGame(slug: string, title: string, md5: string) {
     throw insertedError;
   }
 
-  return insertedData?.id_game;
+  return insertedData?.id_game; // on retourne l'id_game
 }
 
-export async function createGameAndReview(
+export async function createGameAndReview( // ajouter une ligne dans gameReview avec id_game, likes = 0, dislikes = 0 et views = 1
   slug: string,
   title: string,
   md5: string
 ) {
-  // ajouter une ligne dans gameReview avec id_game, likes = 0, dislikes = 0 et views = 1
   const gameId = await createGame(slug, title, md5);
 
   const { data: reviewData, error: reviewError } = await supabase
@@ -248,3 +246,66 @@ export async function getFavoriteGames(profileId: string) {
 
   return data;
 }
+
+
+export async function createComment(gameId: number, profileId: string, comment: string) {
+  const { data, error } = await supabase
+    .from("gameComments")
+    .insert([{ id_games: gameId, id_profiles: profileId, comments: comment, time_posted: new Date() }]);
+
+  if (error) {
+    console.error(error);
+    throw error;
+  }
+
+  return data;
+}
+
+export async function getCommentsForGame(gameId: number) {
+  const { data, error } = await supabase
+    .from("gameComments")
+    .select("*")
+    .eq("id_games", gameId)
+    .order("time_posted", { ascending: false }); // Pour avoir les commentaires les plus récents en premier
+
+  if (error) {
+    console.error(error);
+    throw error;
+  }
+
+  return data;
+}
+
+export async function deleteComment(commentId: number, profileId: string) {
+  // Vous pourriez vouloir vérifier que l'utilisateur qui tente de supprimer le commentaire est celui qui l'a posté
+  const { data, error } = await supabase
+    .from("gameComments")
+    .delete()
+    .eq("id", commentId)
+    .eq("id_profiles", profileId);
+
+  if (error) {
+    console.error(error);
+    throw error;
+  }
+
+  return data;
+}
+
+// Cette fonction est facultative, elle dépend de si vous souhaitez permettre aux utilisateurs de modifier leurs commentaires
+export async function updateComment(commentId: number, profileId: string, newComment: string) {
+  // Encore une fois, vous pourriez vouloir vérifier que l'utilisateur qui tente de modifier le commentaire est celui qui l'a posté
+  const { data, error } = await supabase
+    .from("gameComments")
+    .update({ comments: newComment })
+    .eq("id", commentId)
+    .eq("id_profiles", profileId);
+
+  if (error) {
+    console.error(error);
+    throw error;
+  }
+
+  return data;
+}
+

@@ -28,7 +28,7 @@ import {
   getSlugGameid,
   removeFavorite,
   updateGameReview,
-  updateUserGameReview,
+  updateUserGameReview
 } from "@/components/Game/gameFunction";
 import { UserContext } from "@/contexts/UserProvider";
 import CountUp from "react-countup";
@@ -65,6 +65,7 @@ const GamePage = ({ params: { prod, slug } }: Props) => {
   const [liked, setLiked] = useState(false);
   const [disLiked, setDisliked] = useState(false);
   const [favorited, setFavorited] = useState(false);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -184,8 +185,8 @@ const GamePage = ({ params: { prod, slug } }: Props) => {
     prod === "CG"
       ? `https://games.crazygames.com/en_US/${slug}/index.html`
       : prod === "GD" && data
-      ? `https://html5.gamedistribution.com/${data.gameSearched?.md5}`
-      : "";
+        ? `https://html5.gamedistribution.com/${data.gameSearched?.md5}`
+        : "";
 
   const handleIframeError = () => setIframeError(true);
 
@@ -238,6 +239,13 @@ const GamePage = ({ params: { prod, slug } }: Props) => {
           className="w-full h-full"
           src={iframeUrl}
           title={data?.gameSearched?.title || ""}
+          scrolling="no"
+          allow="autoplay; payment; fullscreen; microphone; focus-without-user-activation *; screen-wake-lock; gamepad; clipboard-read; clipboard-write;"
+          allowFullScreen
+          sandbox="allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-presentation allow-scripts allow-same-origin allow-downloads allow-popups"
+          loading="eager"
+          data-hj-allow-iframe="true"
+
           onError={handleIframeError}
         ></iframe>
         <div
@@ -250,18 +258,16 @@ const GamePage = ({ params: { prod, slug } }: Props) => {
           </div>
           <div className="flex flex-row items-center justify-center gap-1 text-white">
             <Like
-              className={`text-[26px] cursor-pointer ${
-                liked ? "text-blue-500" : ""
-              }`}
+              className={`text-[26px] cursor-pointer ${liked ? "text-blue-500" : ""
+                }`}
               onClick={handleLike}
             />
             <CountUp end={likes ? likes : 0} duration={0.8} />
           </div>
           <div className="flex flex-row items-center justify-center gap-1 text-white">
             <Dislike
-              className={`text-[26px] cursor-pointer ${
-                disLiked ? "text-blue-500" : ""
-              }`}
+              className={`text-[26px] cursor-pointer ${disLiked ? "text-blue-500" : ""
+                }`}
               onClick={handleDislike}
             />
             <CountUp end={dislikes ? dislikes : 0} duration={0.8} />
@@ -324,6 +330,7 @@ const GamePage = ({ params: { prod, slug } }: Props) => {
           </div>
         </div>
       </div>
+      <div className="w-[90%] p-9 bg-slate-300 text-2xl text-center font-extrabold">Commentaire à faire</div>
     </div>
   );
 };

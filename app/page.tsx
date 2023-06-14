@@ -63,6 +63,22 @@ export default function Home() {
     }
   );
 
+  const {
+    data: dataRacing,
+    loading: loadingRacing,
+    error: errorRacing,
+  } = useQuery<GetGameDataQuery, GetGameDataQueryVariables>(
+    GetGameDataDocument,
+    {
+      variables: {
+        visibleFilter: "true",
+        search: "",
+        hitsPerPage: 10,
+        categories: "Racing",
+      },
+    }
+  );
+
   useEffect(() => {
     if (
       !loadingAdventure &&
@@ -91,6 +107,8 @@ export default function Home() {
           <GameCategory category="Adventure" data={dataAdventure} />
           <GameCategory category="Arcade" data={dataArcade} />
           <GameCategory category="Multiplayer" data={dataMultiplayer} />
+          <GameCategory category="Racing" data={dataRacing} />
+
         </>
       ) : (
         <LoadingPage />
