@@ -1,5 +1,7 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
+import { formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
 import React, { useContext, useEffect, useState } from "react";
 import { useQuery } from "@apollo/client";
 import {
@@ -10,6 +12,7 @@ import {
 import LoadingHamster from "@/components/LoadingSpinner/LoadingHamster";
 import Link from "next/link";
 import { BiFullscreen } from "react-icons/bi";
+import { VscSmiley } from "react-icons/vsc";
 import "../../../../styles/game-like.css";
 import {
   AiFillLike as Like,
@@ -19,23 +22,41 @@ import {
 import { MdOutlineFavorite as Favorite } from "react-icons/md";
 import {
   checkIfFavorited,
+  createComment,
   createFavorite,
   createGameAndReview,
   createUserGameReview,
   findGameBySlug,
   findUserGameReview,
+  getGameComments,
   getReviews,
   getSlugGameid,
   removeFavorite,
   updateGameReview,
-  updateUserGameReview
+  updateUserGameReview,
 } from "@/components/Game/gameFunction";
 import { UserContext } from "@/contexts/UserProvider";
 import CountUp from "react-countup";
 import Image from "next/image";
+import { Avatar } from "@bigheads/core";
+import EmojiPicker from "emoji-picker-react";
 
 interface Props {
   params: { prod: string; slug: string };
+}
+
+interface Comment {
+  userId: string;
+  comment: string;
+  commentId: number;
+  time_posted: Date;
+  full_name: string;
+  avatar_url: string;
+  avatarMode: string;
+}
+
+interface EmojiObject {
+  emoji: string;
 }
 
 const GamePage = ({ params: { prod, slug } }: Props) => {
@@ -66,6 +87,71 @@ const GamePage = ({ params: { prod, slug } }: Props) => {
   const [disLiked, setDisliked] = useState(false);
   const [favorited, setFavorited] = useState(false);
 
+  const [comment, setComment] = useState(""); // Ajouter cet état pour gérer le contenu du commentaire
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [hasCommented, setHasCommented] = useState(false);
+
+  const handleCommentSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (!user || !user.id || !gameId) return;
+    // Essayer de créer le commentaire
+    try {
+      const newComment = await createComment(gameId, user.id, comment);
+      setHasCommented(true);
+      // Traitement du nouveau commentaire ici (par exemple, ajouter à une liste de commentaires à afficher)
+    } catch (error) {
+      // Gestion d'erreur ici
+      console.error("Erreur lors de la création du commentaire:", error);
+    }
+    setComment(""); // Réinitialiser le contenu du commentaire
+  };
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      if (gameId !== undefined) {
+        const gameComments: Comment[] = (await getGameComments(gameId)).map(
+          (item: any) => ({
+            commentId: item.id_gameComments,
+            userId: item.id_profile,
+            comment: item.comment,
+            time_posted: item.time_posted,
+            full_name: item.profiles.full_name,
+            avatar_url: item.profiles.avatar_url,
+            avatarMode: item.profiles.avatarMode,
+          })
+        );
+        console.log(gameComments);
+
+        setComments(gameComments);
+
+        // Check if user has already commented
+        if (user !== null) {
+          if (gameComments.some((comment) => comment.userId === user.id)) {
+            setHasCommented(true);
+          }
+        }
+      }
+    };
+    fetchComments();
+  }, [gameId, comment, user]);
+
+  const onEmojiClick = (emojiObject: { emoji: string }) => {
+    setComment((prevComment) => prevComment + emojiObject.emoji);
+  };
+
+  const handleCommentChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    const { value } = event.target;
+    setComment(value);
+  };
+
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+  const toggleEmojiPicker = () => {
+    setShowEmojiPicker((prevState) => !prevState);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -185,8 +271,8 @@ const GamePage = ({ params: { prod, slug } }: Props) => {
     prod === "CG"
       ? `https://games.crazygames.com/en_US/${slug}/index.html`
       : prod === "GD" && data
-        ? `https://html5.gamedistribution.com/${data.gameSearched?.md5}`
-        : "";
+      ? `https://html5.gamedistribution.com/${data.gameSearched?.md5}`
+      : "";
 
   const handleIframeError = () => setIframeError(true);
 
@@ -245,7 +331,6 @@ const GamePage = ({ params: { prod, slug } }: Props) => {
           sandbox="allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-presentation allow-scripts allow-same-origin allow-downloads allow-popups"
           loading="eager"
           data-hj-allow-iframe="true"
-
           onError={handleIframeError}
         ></iframe>
         <div
@@ -258,16 +343,18 @@ const GamePage = ({ params: { prod, slug } }: Props) => {
           </div>
           <div className="flex flex-row items-center justify-center gap-1 text-white">
             <Like
-              className={`text-[26px] cursor-pointer ${liked ? "text-blue-500" : ""
-                }`}
+              className={`text-[26px] cursor-pointer ${
+                liked ? "text-blue-500" : ""
+              }`}
               onClick={handleLike}
             />
             <CountUp end={likes ? likes : 0} duration={0.8} />
           </div>
           <div className="flex flex-row items-center justify-center gap-1 text-white">
             <Dislike
-              className={`text-[26px] cursor-pointer ${disLiked ? "text-blue-500" : ""
-                }`}
+              className={`text-[26px] cursor-pointer ${
+                disLiked ? "text-blue-500" : ""
+              }`}
               onClick={handleDislike}
             />
             <CountUp end={dislikes ? dislikes : 0} duration={0.8} />
@@ -330,7 +417,92 @@ const GamePage = ({ params: { prod, slug } }: Props) => {
           </div>
         </div>
       </div>
-      <div className="w-[90%] p-9 bg-slate-300 text-2xl text-center font-extrabold">Commentaire à faire</div>
+
+      <div className="my-2 w-full lg:w-[90%]">
+        <h2 className="text-2xl font-bold mb-2 text-white">Commentaire</h2>
+
+        {user ? (
+          <>
+            {hasCommented ? (
+              <></>
+            ) : (
+              <form
+                className="mt-2 w-full bg-gray-800 p-4 rounded-md mb-4"
+                onSubmit={handleCommentSubmit}
+              >
+                <div className="flex flex-col space-y-2">
+                  <div className="relative">
+                    <textarea
+                      className="bg-gray-900 text-white placeholder-gray-400 px-3 py-2 rounded-lg w-full h-20"
+                      placeholder="Ajouter un commentaire"
+                      value={comment}
+                      onChange={handleCommentChange}
+                      required
+                    />
+                    <div className="flex flex-row gap-2 justify-center items-center">
+                      <button onClick={toggleEmojiPicker} type="button">
+                        <VscSmiley className="w-8 h-8 text-[#f5ab00]" />
+                      </button>
+                      <button
+                        className="bg-gray-950 text-white p-2 rounded-lg w-full"
+                        type="submit"
+                      >
+                        Commenter
+                      </button>
+                    </div>
+                    <div className="absolute bottom-[150px]">
+                      {showEmojiPicker && (
+                        <EmojiPicker onEmojiClick={onEmojiClick} />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </form>
+            )}
+          </>
+        ) : (
+          <p className="w-full lg:w-[90%] bg-gray-800 p-4 text-white rounded-md shadow-lg mb-4">
+            Vous devez être connecté pour laisser un commentaire.
+          </p>
+        )}
+
+        {comments.map((comment, index) => (
+          <div key={index} className=" bg-gray-800 p-4 rounded-md mb-4">
+            <div className="flex items-start space-x-4">
+              <div className="w-16 h-16 rounded-full border-2 border-gray-600 overflow-hidden">
+                {comment.avatarMode === "image" ? (
+                  <Image
+                    src={comment.avatar_url}
+                    alt={"Profile"}
+                    width={128}
+                    height={128}
+                    className="object-cover rounded-full"
+                  />
+                ) : comment.avatarMode === "avatar" ? (
+                  <Avatar
+                    {...JSON.parse(comment.avatar_url)}
+                    className="rounded-full"
+                  />
+                ) : null}
+              </div>
+              <div className="flex-grow">
+                <div className="flex items-baseline justify-between gap-2">
+                  <h2 className="font-semibold text-lg text-white">
+                    {comment.full_name}
+                  </h2>
+                  <span className="text-gray-400 text-sm">
+                    {formatDistanceToNow(new Date(comment.time_posted), {
+                      addSuffix: true,
+                      locale: fr,
+                    })}
+                  </span>
+                </div>
+                <p className="text-gray-400">{comment.comment}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
