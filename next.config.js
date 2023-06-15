@@ -6,10 +6,7 @@ const nextConfig = {
       'lh3.googleusercontent.com',
       'cspgaovwyijhefsrqskl.supabase.co'
     ],
-  },
-  experimental: {
-    serverActions: true,
-  },
+  }
 }
 
 module.exports = nextConfig

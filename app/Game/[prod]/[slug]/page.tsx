@@ -13,6 +13,7 @@ import LoadingHamster from "@/components/LoadingSpinner/LoadingHamster";
 import Link from "next/link";
 import { BiFullscreen } from "react-icons/bi";
 import { VscSmiley } from "react-icons/vsc";
+import { IoMdMore } from "react-icons/io";
 import "../../../../styles/game-like.css";
 import {
   AiFillLike as Like,
@@ -26,12 +27,14 @@ import {
   createFavorite,
   createGameAndReview,
   createUserGameReview,
+  deleteComment,
   findGameBySlug,
   findUserGameReview,
   getGameComments,
   getReviews,
   getSlugGameid,
   removeFavorite,
+  updateComment,
   updateGameReview,
   updateUserGameReview,
 } from "@/components/Game/gameFunction";
@@ -90,6 +93,7 @@ const GamePage = ({ params: { prod, slug } }: Props) => {
   const [comment, setComment] = useState(""); // Ajouter cet état pour gérer le contenu du commentaire
   const [comments, setComments] = useState<Comment[]>([]);
   const [hasCommented, setHasCommented] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
   const handleCommentSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -151,6 +155,63 @@ const GamePage = ({ params: { prod, slug } }: Props) => {
 
   const toggleEmojiPicker = () => {
     setShowEmojiPicker((prevState) => !prevState);
+  };
+
+  const moreComment = () => {
+    console.log("test");
+  };
+
+  const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
+  const [editedComment, setEditedComment] = useState("");
+
+  const handleEditComment = (commentId: number) => {
+    const comment = comments.find((c) => c.commentId === commentId);
+    if (comment) {
+      setEditedComment(comment.comment);
+      setEditingCommentId(commentId);
+    }
+  };
+
+  const handleCancelEditComment = () => {
+    setEditingCommentId(null);
+    setEditedComment("");
+  };
+
+  const handleDeleteComment = async (commentId: number) => {
+    const confirmDelete = window.confirm(
+      "Voulez-vous supprimer ce commentaire ?"
+    );
+    if (confirmDelete && user) {
+      try {
+        await deleteComment(commentId);
+        // Supprimez le commentaire de la liste des commentaires affichés
+        const updatedComments = comments.filter(
+          (c) => c.commentId !== commentId
+        );
+        setComments(updatedComments);
+        setHasCommented(false);
+      } catch (error) {
+        console.error("Erreur lors de la suppression du commentaire:", error);
+      }
+    }
+  };
+
+  const handleSaveEditedComment = async (commentId: number) => {
+    const comment = comments.find((c) => c.commentId === commentId);
+    if (comment && user) {
+      const updatedComment = await updateComment(commentId, editedComment);
+      if (updatedComment) {
+        // Mettez à jour le commentaire dans la liste des commentaires affichés
+        const updatedComments = comments.map((c) =>
+          c.commentId === commentId ? { ...c, comment: editedComment } : c
+        );
+        setComments(updatedComments);
+        setEditingCommentId(null);
+        setEditedComment("");
+      } else {
+        console.error("Erreur lors de la mise à jour du commentaire");
+      }
+    }
   };
 
   useEffect(() => {
@@ -467,13 +528,65 @@ const GamePage = ({ params: { prod, slug } }: Props) => {
         )}
 
         {comments.map((comment, index) => (
-          <div key={index} className=" bg-gray-800 p-4 rounded-md mb-4">
+          <div
+            key={index}
+            className=" bg-gray-800 p-4 rounded-md mb-4 relative"
+          >
+            {comment.userId === user?.id ? (
+              <div className="absolute right-0 top-2">
+                {editingCommentId === comment.commentId ? (
+                  <div className="flex gap-2 justify-end absolute right-4 top-[99px]">
+                    <button
+                      onClick={() => handleCancelEditComment()}
+                      className="text-gray-400 hover:text-white"
+                    >
+                      Annuler
+                    </button>
+                    <button
+                      onClick={() => handleSaveEditedComment(comment.commentId)}
+                      className="text-blue-500 hover:text-blue-300"
+                    >
+                      Sauvegarder
+                    </button>
+                  </div>
+                ) : (
+                  <div className="relative text-white">
+                    <IoMdMore onClick={() => setShowMenu(!showMenu)} />
+                    {showMenu && (
+                      <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-gray-900 text-white z-10">
+                        <div className="py-1 rounded-md shadow-xs">
+                          <button
+                            onClick={() => {
+                              handleEditComment(comment.commentId);
+                              setShowMenu(false);
+                            }}
+                            className="w-full text-left block px-4 py-2 text-sm text-white hover:bg-gray-700"
+                          >
+                            Modifier
+                          </button>
+                          <button
+                            onClick={() => {
+                              handleDeleteComment(comment.commentId);
+                              setShowMenu(false);
+                            }}
+                            className="w-full text-left block px-4 py-2 text-sm text-white hover:bg-gray-700"
+                          >
+                            Supprimer
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ) : null}
             <div className="flex items-start space-x-4">
               <div className="w-16 h-16 rounded-full border-2 border-gray-600 overflow-hidden">
+                {/* Afficher l'avatar de l'utilisateur */}
                 {comment.avatarMode === "image" ? (
                   <Image
                     src={comment.avatar_url}
-                    alt={"Profile"}
+                    alt="Profile"
                     width={128}
                     height={128}
                     className="object-cover rounded-full"
@@ -487,9 +600,11 @@ const GamePage = ({ params: { prod, slug } }: Props) => {
               </div>
               <div className="flex-grow">
                 <div className="flex items-baseline justify-between gap-2">
+                  {/* Afficher le nom de l'utilisateur */}
                   <h2 className="font-semibold text-lg text-white">
                     {comment.full_name}
                   </h2>
+                  {/* Afficher le temps écoulé depuis la publication du commentaire */}
                   <span className="text-gray-400 text-sm">
                     {formatDistanceToNow(new Date(comment.time_posted), {
                       addSuffix: true,
@@ -497,7 +612,17 @@ const GamePage = ({ params: { prod, slug } }: Props) => {
                     })}
                   </span>
                 </div>
-                <p className="text-gray-400">{comment.comment}</p>
+                {/* Afficher le contenu du commentaire ou le champ de modification */}
+                {editingCommentId === comment.commentId ? (
+                  <textarea
+                    value={editedComment}
+                    onChange={(event) => setEditedComment(event.target.value)}
+                    className="w-full p-2 rounded-md"
+                    required
+                  />
+                ) : (
+                  <p className="text-gray-400">{comment.comment}</p>
+                )}
               </div>
             </div>
           </div>

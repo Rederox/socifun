@@ -4,6 +4,7 @@ import SearchResults from "./SearchResults";
 
 function Search() {
   const [searchTerm, setSearchTerm] = useState<string>("");
+
   const [filterTerm, setFilterTerm] = useState<string>("none");
   const [lastFilter, setLastFilter] = useState<string>("");
   return (

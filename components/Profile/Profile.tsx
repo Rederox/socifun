@@ -137,7 +137,7 @@ const Profile: React.FC = () => {
   };
 
   return (
-    <div className="bg-gray-900 text-white rounded-[8px]">
+    <div className="bg-[#1a1a2e] text-white rounded-[8px]">
       <div className="relative bg-gray-800 rounded-[8px]">
         <Image
           src={"/bannerCrop.jpg"}
@@ -186,19 +186,15 @@ const Profile: React.FC = () => {
         </div>
         <div>
           <h1 className="md:text-3xl font-bold">{profile?.full_name}</h1>
-          {
-            profile?.username ? (
-
-
-              <h3 className="md:text-[20px] text-[13px] text-gray-400  font-bold">
-                @{profile?.username}
-              </h3>
-            ) : (
-              <h3 className="md:text-[20px] text-[13px] text-gray-400  font-bold">
-                Pesudo non créer
-              </h3>
-            )
-          }
+          {profile?.username ? (
+            <h3 className="md:text-[20px] text-[13px] text-gray-400  font-bold">
+              @{profile?.username}
+            </h3>
+          ) : (
+            <h3 className="md:text-[20px] text-[13px] text-gray-400  font-bold">
+              Pesudo non créer
+            </h3>
+          )}
         </div>
       </div>
 
@@ -215,6 +211,7 @@ const Profile: React.FC = () => {
             justifyContent: "center",
             alignItems: "center",
           }}
+          className="z-30"
         >
           <div className="w-4/5 max-w-md bg-[#1a202c] text-white p-5 rounded-md flex flex-col gap-4 mx-auto">
             <h2 className="text-center text-xl font-bold">
@@ -231,13 +228,7 @@ const Profile: React.FC = () => {
                 className="transition duration-300 ease-in-out bg-gray-800 text-white w-full rounded-md px-3 py-2 mt-2 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
               />
             </label>
-            <div>
-              {
-                errorMsg && (
-                  < p className=" text-red-600">{errorMsg}</p>
-                )
-              }
-            </div>
+            <div>{errorMsg && <p className=" text-red-600">{errorMsg}</p>}</div>
 
             <label>
               Nom
@@ -321,9 +312,8 @@ const Profile: React.FC = () => {
             </div>
           </div>
         </div>
-      )
-      }
-    </div >
+      )}
+    </div>
   );
 };
 

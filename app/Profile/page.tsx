@@ -8,6 +8,7 @@ import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
 
 import Profile from "@/components/Profile/Profile";
 import LoadingHamster from "@/components/LoadingSpinner/LoadingHamster";
+import FavoriteGames from "@/components/Profile/FavoriteGames";
 
 const ProfilePage = () => {
   const context = useContext(UserContext);
@@ -32,14 +33,19 @@ const ProfilePage = () => {
   console.log(avatarProps);
 
   return (
-    <div className="flex w-[99%] h-screen rounded-md flex-col items-center  bg-[#2e2e52] p-4">
-      <div className="w-[99%]">
+    <div className="flex w-[99%] h-[100%] rounded-md flex-col items-center  bg-[#2e2e52] p-4 gap-3">
+      <div className="w-[99%] flex gap-3 flex-col">
         {user ? (
           <>
             <Profile />
+            <div className="flex  bg-[#1a1a2e] p-4 rounded-md">
+              <FavoriteGames />
+            </div>
           </>
         ) : (
-          <>Vous n'êtes pas connecté</>
+          <div className="h-screen flex items-center justify-center font-extrabold text-2xl text-[#ff0000]">
+            Vous n'êtes pas connecté
+          </div>
         )}
       </div>
     </div>

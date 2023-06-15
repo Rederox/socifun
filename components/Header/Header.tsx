@@ -47,7 +47,7 @@ const Header = () => {
       }
     };
     favorite();
-  }, [user]);
+  }, [user, likedGames]);
 
   return (
     <header className="bg-[#21243d] backdrop-filter backdrop-blur-lg text-white py-4 px-6 m-0 w-full z-50 fixed flex justify-between items-center md:h-[105px] h-[75px]">

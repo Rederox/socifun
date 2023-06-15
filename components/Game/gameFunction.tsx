@@ -310,3 +310,30 @@ export async function getGameComments(gameId: number) {
   console.log(data);
   return data;
 }
+
+export async function deleteComment(commentId: number) {
+  const { error } = await supabase
+    .from("gameComments")
+    .delete()
+    .eq("id_gameComments", commentId);
+
+  if (error) {
+    throw error;
+  }
+}
+
+// Mettre à jour un commentaire
+export async function updateComment(commentId: number, updatedComment: string) {
+  const { data, error } = await supabase
+    .from("gameComments")
+    .update({ comment: updatedComment })
+    .eq("id_gameComments", commentId)
+    .single();
+
+  if (error) {
+    console.error(error);
+    throw error;
+  }
+
+  return true;
+}

@@ -5,7 +5,7 @@ import {
   GetGameDataQuery,
   GetGameDataQueryVariables,
 } from "@/generated";
-import { empty, gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import Image from "next/image";
 import { BeatLoader } from "react-spinners";
 import Link from "next/link";
