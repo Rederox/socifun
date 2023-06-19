@@ -7,6 +7,7 @@ import Random from "./Random";
 import Link from "next/link";
 import { UserContext } from "@/contexts/UserProvider";
 import { getFavoriteGames } from "../Game/gameFunction";
+import { supabase } from "@/lib/supabaseClient";
 
 interface Game {
   id: number;
@@ -47,7 +48,21 @@ const Header = () => {
       }
     };
     favorite();
-  }, [user, likedGames]);
+    supabase
+      .channel("table-db-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "favorite",
+        },
+        (payload) => {
+          favorite();
+        }
+      )
+      .subscribe();
+  }, [user]);
 
   return (
     <header className="bg-[#21243d] backdrop-filter backdrop-blur-lg text-white py-4 px-6 m-0 w-full z-50 fixed flex justify-between items-center md:h-[105px] h-[75px]">

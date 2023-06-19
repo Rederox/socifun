@@ -3,6 +3,7 @@ import Image from "next/image";
 import { AiOutlineClose } from "react-icons/ai";
 import { UserContext } from "@/contexts/UserProvider";
 import { getFavoriteGames, removeFavorite } from "../Game/gameFunction";
+import { supabase } from "@/lib/supabaseClient";
 
 interface Game {
   id: number;
@@ -43,6 +44,20 @@ function FavoriteGames() {
       }
     };
     favorite();
+    supabase
+      .channel("table-db-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "favorite",
+        },
+        (payload) => {
+          favorite();
+        }
+      )
+      .subscribe();
   }, [user]);
 
   const handleRemoveGame = async (gameId: number) => {
