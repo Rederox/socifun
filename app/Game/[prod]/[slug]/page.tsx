@@ -157,10 +157,6 @@ const GamePage = ({ params: { prod, slug } }: Props) => {
     setShowEmojiPicker((prevState) => !prevState);
   };
 
-  const moreComment = () => {
-    console.log("test");
-  };
-
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editedComment, setEditedComment] = useState("");
 

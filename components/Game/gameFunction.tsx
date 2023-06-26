@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { data } from "autoprefixer";
 
 export async function findGameBySlug(slug: string) {
+  // Cette fonction vérifie si un jeu avec un certain slug existe dans la base de données
   // Récuperer si le slug existe  dans la bdd
   let { error } = await supabase
     .from("games")
@@ -10,13 +11,13 @@ export async function findGameBySlug(slug: string) {
     .single();
 
   if (error) {
-    return false; // Error on retourne False doncl'utilisateur n'as pas etais trouver
+    return false; // En cas d'erreur, on retourne False donc l'utilisateur n'a pas été trouvé
   }
   return true; // utilsateur à étais trouver
 }
 
 export async function createGame(slug: string, title: string, md5: string) {
-  // Ajouter une ligne dans games avec son (slug, title et md5), ça retourne l'id_game
+  // Cette fonction crée un nouveau jeu dans la base de données avec le slug, le titre et le hash md5 fournis
   const { data, error } = await supabase
     .from("games")
     .insert([{ slug, title, md5 }]);
@@ -41,7 +42,7 @@ export async function createGame(slug: string, title: string, md5: string) {
   return insertedData?.id_game; // on retourne l'id_game
 }
 
-export async function createGameAndReview( // ajouter une ligne dans gameReview avec id_game, likes = 0, dislikes = 0 et views = 1
+export async function createGameAndReview( // Cette fonction crée un nouveau jeu et une nouvelle critique avec des valeurs initiales
   slug: string,
   title: string,
   md5: string
@@ -56,6 +57,7 @@ export async function createGameAndReview( // ajouter une ligne dans gameReview 
 }
 
 export async function getSlugGameid(slug: string) {
+  // Cette fonction récupère l'ID d'un jeu à partir de son slug
   const { data: insertedData, error: insertedError } = await supabase
     .from("games")
     .select("id_game")
@@ -71,7 +73,7 @@ export async function getSlugGameid(slug: string) {
 }
 
 export async function getReviews(gameId: number) {
-  // Récuperer les likes,dislikes et views
+  // Cette fonction récupère les likes, dislikes et vues d'un jeu
   const { data, error } = await supabase
     .from("gameReview")
     .select("likes, dislikes, views")
@@ -87,6 +89,7 @@ export async function getReviews(gameId: number) {
 }
 
 export async function findUserGameReview(profileId: string, gameId: number) {
+  // Cette fonction trouve la critique d'un utilisateur pour un jeu spécifique
   const { data, error } = await supabase
     .from("userGamesReviews")
     .select("*")
@@ -103,6 +106,7 @@ export async function findUserGameReview(profileId: string, gameId: number) {
 }
 
 export async function updateGameReview(gameId: number, action: string) {
+  // Cette fonction met à jour la critique d'un jeu en fonction de l'action fournie
   const { data: currentData, error: fetchError } = await supabase
     .from("gameReview")
     .select("likes, dislikes, views")
@@ -146,6 +150,7 @@ export async function updateGameReview(gameId: number, action: string) {
 }
 
 export async function updateUserGameReview(
+  // Cette fonction met à jour la critique d'un utilisateur pour un jeu et met à jour les statistiques de la critique du jeu en conséquence
   profileId: string,
   gameId: number,
   reviewAction: any
@@ -168,6 +173,7 @@ export async function updateUserGameReview(
 }
 
 export async function createUserGameReview(
+  // Cette fonction crée une nouvelle critique pour un jeu par un utilisateur et met à jour les statistiques de la critique du jeu en conséquence
   profileId: string,
   gameId: number,
   reviewAction: string
@@ -187,6 +193,7 @@ export async function createUserGameReview(
 }
 
 export async function checkIfFavorited(userId: string, gameId: number) {
+  // Cette fonction vérifie si un jeu est favori d'un utilisateur
   const { data, error } = await supabase
     .from("favorite")
     .select("*")
@@ -207,6 +214,7 @@ export async function checkIfFavorited(userId: string, gameId: number) {
 }
 
 export async function createFavorite(profileId: string, gameId: number) {
+  // Cette fonction ajoute un jeu aux favoris d'un utilisateur
   const { data, error } = await supabase
     .from("favorite")
     .insert([{ id_profile: profileId, id_game: gameId }]);
@@ -220,6 +228,7 @@ export async function createFavorite(profileId: string, gameId: number) {
 }
 
 export async function removeFavorite(profileId: string, gameId: number) {
+  // Cette fonction supprime un jeu des favoris d'un utilisateur
   const { data, error } = await supabase
     .from("favorite")
     .delete()
@@ -235,6 +244,7 @@ export async function removeFavorite(profileId: string, gameId: number) {
 }
 
 export async function getFavoriteGames(profileId: string) {
+  // Cette fonction récupère tous les jeux favoris d'un utilisateur
   const { data, error } = await supabase
     .from("favorite")
     .select("id_game, games (title, slug, md5)")
@@ -248,7 +258,7 @@ export async function getFavoriteGames(profileId: string) {
   return data;
 }
 
-// Obtenir tous les commentaires d'un jeu par un utilisateur spécifique
+// Cette fonction récupère tous les commentaires d'un utilisateur sur un jeu
 export async function getUserGameComments(gameId: number, profileId: string) {
   const { data, error } = await supabase
     .from("gameComments")
@@ -264,7 +274,7 @@ export async function getUserGameComments(gameId: number, profileId: string) {
   return data;
 }
 
-// Créer un commentaire
+// Cette fonction crée un nouveau commentaire sur un jeu par un utilisateur
 export async function createComment(
   gameId: number,
   profileId: string,
@@ -296,6 +306,7 @@ export async function createComment(
 }
 
 export async function getGameComments(gameId: number) {
+  // Cette fonction récupère tous les commentaires sur un jeu
   const { data, error } = await supabase
     .from("gameComments")
     .select(
@@ -312,6 +323,7 @@ export async function getGameComments(gameId: number) {
 }
 
 export async function deleteComment(commentId: number) {
+  // Cette fonction supprime un commentaire
   const { error } = await supabase
     .from("gameComments")
     .delete()
@@ -324,6 +336,7 @@ export async function deleteComment(commentId: number) {
 
 // Mettre à jour un commentaire
 export async function updateComment(commentId: number, updatedComment: string) {
+  // Cette fonction met à jour un commentaire
   const { data, error } = await supabase
     .from("gameComments")
     .update({ comment: updatedComment })
