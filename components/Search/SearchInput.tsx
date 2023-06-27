@@ -30,21 +30,21 @@ function SearchInput({
     GetCategoryQuery,
     GetCategoryQueryVariables
   >(GetCategoryDocument, {});
-  // const categories = [
-  //   "Adventure",
-  //   "Arcade",
-  //   "Puzzle",
-  //   "Girls",
-  //   "Action",
-  //   "3D",
-  //   "Hypercasual",
-  //   "Racing",
-  //   "Boys",
-  //   "Shooting",
-  //   "Clicker",
-  //   "Bejeweled",
-  //   "Baby",
-  // ];
+  const categories = [
+    "Adventure",
+    "Arcade",
+    "Puzzle",
+    "Girls",
+    "Action",
+    "3D",
+    "Hypercasual",
+    "Racing",
+    "Boys",
+    "Shooting",
+    "Clicker",
+    "Bejeweled",
+    "Baby",
+  ];
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -80,7 +80,7 @@ function SearchInput({
             >
               <option value="none">None</option>
               <option value="">All</option>
-              {data?.facets.categories.map((category, index) => (
+              {categories.map((category, index) => (
                 <option key={index} value={category}>
                   {category}
                 </option>
