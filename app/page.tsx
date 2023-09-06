@@ -48,9 +48,9 @@ export default function Home() {
   );
 
   const {
-    data: dataMultiplayer,
-    loading: loadingMultiplayer,
-    error: errorMultiplayer,
+    data: dataSimulation,
+    loading: loadingSimulation,
+    error: errorSimulation,
   } = useQuery<GetGameDataQuery, GetGameDataQueryVariables>(
     GetGameDataDocument,
     {
@@ -58,7 +58,7 @@ export default function Home() {
         visibleFilter: "true",
         search: "",
         hitsPerPage: 10,
-        categories: "Multiplayer",
+        categories: "Simulation",
       },
     }
   );
@@ -83,20 +83,20 @@ export default function Home() {
     if (
       !loadingAdventure &&
       !loadingArcade &&
-      !loadingMultiplayer &&
+      !loadingSimulation &&
       !errorAdventure &&
       !errorArcade &&
-      !errorMultiplayer
+      !errorSimulation
     ) {
       setCategoriesLoaded(true);
     }
   }, [
     loadingAdventure,
     loadingArcade,
-    loadingMultiplayer,
+    loadingSimulation,
     errorAdventure,
     errorArcade,
-    errorMultiplayer,
+    errorSimulation,
   ]);
 
   return (
@@ -106,7 +106,7 @@ export default function Home() {
         <>
           <GameCategory category="Adventure" data={dataAdventure} />
           <GameCategory category="Arcade" data={dataArcade} />
-          <GameCategory category="Multiplayer" data={dataMultiplayer} />
+          <GameCategory category="Simulation" data={dataSimulation} />
           <GameCategory category="Racing" data={dataRacing} />
 
         </>
