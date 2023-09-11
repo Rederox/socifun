@@ -7,7 +7,6 @@ Bienvenue dans Socifun, votre plateforme de jeux en ligne préférée ! Ce proje
 - [Démarrage rapide](#démarrage-rapide)
 - [Fonctionnalités](#fonctionnalités)
 - [Technologies utilisées](#technologies-utilisées)
-- [Comment contribuer](#comment-contribuer)
 - [Déploiement](#déploiement)
 - [Licence](#licence)
 
