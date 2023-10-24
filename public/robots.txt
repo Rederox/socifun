@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://socifun.theivathan.fr
+
+# Sitemaps
+Sitemap: https://socifun.theivathan.fr/sitemap.xml
