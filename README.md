@@ -171,10 +171,6 @@ Nous accueillons les contributions à Socifun ! Si vous souhaitez contribuer, ve
 6. **Poussez** vers votre branche : `git push origin feature/nom-de-votre-fonctionnalite`
 7. **Ouvrez une Pull Request** vers la branche `main` du dépôt original.
 
-## Licence
-
-Ce projet n'est actuellement soumis à aucune licence spécifiée. Il est recommandé de choisir et d'ajouter un fichier de licence (ex. : MIT, Apache 2.0) pour définir les conditions d'utilisation et de distribution.
-
 ## Remerciements
 
 - Construit avec [Next.js](https://nextjs.org/).
